@@ -2,432 +2,923 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mobile Power Tool Station — CAD Viewer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tool Station CAD</title>
 <style>
-:root{--bg:#111820;--panel:#15202b;--accent:#f0a500;--text:#e8e8e8;--muted:#7a8fa6;--border:#1f3044;--pine:#d4a84b}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-header{background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px;flex-wrap:wrap}
-.hdr-title{display:flex;flex-direction:column}
-.proj-name{font-size:1rem;font-weight:700;color:var(--accent);letter-spacing:.04em}
-.proj-sub{font-size:.7rem;color:var(--muted)}
-.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-button{background:var(--border);color:var(--text);border:1px solid #2d4560;padding:6px 13px;border-radius:5px;cursor:pointer;font-size:.78rem;transition:all .18s;white-space:nowrap}
-button:hover{border-color:var(--accent)}
-button.active{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
-#flipBtn{background:#172840;border-color:#4a8abf;color:#8bc8f0;font-weight:700;letter-spacing:.02em}
-#flipBtn.flipped{background:#183020;border-color:#5aaa30;color:#90d060}
-select{background:var(--border);color:var(--text);border:1px solid #2d4560;padding:6px 10px;border-radius:5px;font-size:.78rem}
-.main{display:flex;flex:1;overflow:hidden}
-#viewport{flex:1;position:relative;overflow:hidden}
-canvas{display:block}
-.sidebar{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-.sidebar-tabs{display:flex;border-bottom:1px solid var(--border)}
-.tab{flex:1;padding:9px;text-align:center;cursor:pointer;font-size:.74rem;color:var(--muted);border-bottom:2px solid transparent;transition:all .18s}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tc{flex:1;overflow-y:auto;padding:10px;display:none}
-.tc.active{display:block}
-.pc{padding:7px 9px;border:1px solid var(--border);border-radius:5px;margin-bottom:6px;font-size:.77rem}
-.pc .n{font-weight:600}
-.pc .d{color:var(--muted);font-size:.68rem;margin-top:2px}
-.pc .m{color:var(--pine);font-size:.67rem;margin-top:1px}
-table{width:100%;border-collapse:collapse;font-size:.71rem}
-th{background:var(--border);padding:6px 4px;text-align:left;font-weight:600;color:var(--accent);position:sticky;top:0}
-td{padding:5px 4px;border-bottom:1px solid var(--border)}
-tr:nth-child(even){background:rgba(255,255,255,.025)}
-.btotal{margin-top:10px;padding:9px;background:var(--border);border-radius:5px;font-size:.82rem;color:var(--accent);font-weight:600}
-.ni{padding:7px 10px;font-size:.74rem;border-left:3px solid var(--accent);margin-bottom:7px;background:rgba(240,165,0,.06);line-height:1.55}
-#status{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:5px 14px;border-radius:20px;font-size:.7rem;color:var(--muted);pointer-events:none}
-#flipLabel{position:absolute;top:12px;left:50%;transform:translateX(-50%);padding:5px 16px;border-radius:20px;font-size:.75rem;font-weight:600;pointer-events:none;transition:all .4s;background:rgba(10,30,50,.9);border:1px solid #4a8abf;color:#8bc8f0}
-#flipLabel.on{background:rgba(10,40,10,.9);border-color:#5aaa30;color:#90d060}
-.badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:4px;font-size:.67rem;color:var(--muted)}
+/* ── RESET & ROOT ─────────────────────────────────────────── */
+:root{
+  --accent:#f0a500;
+  --bg:#0c1520;
+  --panel:#131e2a;
+  --panel2:#1a2a3a;
+  --border:#1e3248;
+  --text:#eaeaea;
+  --muted:#6a8099;
+  --pine:#d4a84b;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --toolbar-h: 56px;          /* bottom toolbar */
+  --topbar-h: 48px;           /* title bar */
+  --sheet-peek: 72px;         /* how much sheet peeks up */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,'Segoe UI',sans-serif;
+  touch-action:none;
+}
+
+/* ── TOP BAR ─────────────────────────────────────────────── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;
+  height:calc(var(--topbar-h) + var(--safe-top));
+  padding-top:var(--safe-top);
+  background:rgba(13,21,32,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding-left:14px;padding-right:14px;
+  gap:10px;z-index:100;
+}
+#topbar .title{
+  flex:1;font-size:.82rem;font-weight:700;
+  color:var(--accent);letter-spacing:.03em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#infoBtn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--muted);font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+}
+
+/* ── 3D VIEWPORT ─────────────────────────────────────────── */
+#vp{
+  position:fixed;
+  top:calc(var(--topbar-h) + var(--safe-top));
+  left:0;right:0;
+  bottom:calc(var(--toolbar-h) + var(--safe-bot) + var(--sheet-peek));
+  overflow:hidden;background:var(--bg);
+}
+#vp canvas{display:block;width:100%!important;height:100%!important;}
+
+/* ── STATE BADGE ─────────────────────────────────────────── */
+#stateBadge{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(8,20,34,.88);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+  border-radius:20px;padding:5px 14px;
+  font-size:.68rem;color:var(--muted);
+  white-space:nowrap;pointer-events:none;
+  transition:all .3s;z-index:10;
+}
+#stateBadge.flip-on{border-color:#4aa828;color:#80d050;}
+#stateBadge.explode-on{border-color:#7060c8;color:#b090f8;}
+
+/* ── BOTTOM TOOLBAR ──────────────────────────────────────── */
+#toolbar{
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(var(--toolbar-h) + var(--safe-bot));
+  padding-bottom:var(--safe-bot);
+  background:rgba(13,21,32,.96);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;
+  padding-left:8px;padding-right:8px;
+  gap:6px;z-index:200;
+}
+/* Each toolbar button */
+.tbtn{
+  flex:1;height:44px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:2px;
+  background:transparent;border:none;
+  color:var(--muted);cursor:pointer;
+  border-radius:10px;
+  transition:background .15s, color .15s;
+  -webkit-user-select:none;user-select:none;
+  min-width:0;
+  font-family:inherit;
+}
+.tbtn .icon{font-size:1.25rem;line-height:1;}
+.tbtn .label{font-size:.58rem;font-weight:600;letter-spacing:.02em;line-height:1}
+.tbtn:active{background:rgba(255,255,255,.07);}
+.tbtn.on{color:var(--accent);}
+.tbtn.flip-active{color:#80d050;}
+.tbtn.explode-active{color:#b090f8;}
+
+/* Primary action (Flip + Explode) get a pill background */
+#flipBtn.on,.tbtn#flipBtn.flip-active{
+  background:rgba(74,168,40,.15);
+  color:#80d050;
+}
+#explodeBtn.on,.tbtn#explodeBtn.explode-active{
+  background:rgba(112,96,200,.15);
+  color:#b090f8;
+}
+
+/* divider */
+.tdiv{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+
+/* ── BOTTOM SHEET ────────────────────────────────────────── */
+#sheet{
+  position:fixed;left:0;right:0;
+  bottom:calc(var(--toolbar-h) + var(--safe-bot));
+  /* default: only peek showing */
+  height:calc(100% - var(--topbar-h) - var(--safe-top) - var(--toolbar-h) - var(--safe-bot));
+  transform:translateY(calc(100% - var(--sheet-peek)));
+  background:var(--panel);
+  border-radius:18px 18px 0 0;
+  border:1px solid var(--border);
+  border-bottom:none;
+  z-index:150;
+  transition:transform .32s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  will-change:transform;
+}
+#sheet.open{transform:translateY(0);}
+
+/* drag handle */
+#sheetHandle{
+  width:100%;height:var(--sheet-peek);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  cursor:grab;flex-shrink:0;gap:6px;
+  padding:0 16px;
+}
+#sheetHandle:active{cursor:grabbing;}
+.handle-pill{width:36px;height:4px;background:var(--border);border-radius:2px;}
+.handle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;
+}
+.handle-title{font-size:.78rem;font-weight:700;color:var(--text);}
+.handle-sub{font-size:.65rem;color:var(--muted);}
+
+/* sheet tabs */
+#sheetTabs{
+  display:flex;border-bottom:1px solid var(--border);
+  flex-shrink:0;background:var(--panel);
+}
+.stab{
+  flex:1;padding:11px 4px;text-align:center;
+  font-size:.72rem;font-weight:600;
+  color:var(--muted);border-bottom:2px solid transparent;
+  cursor:pointer;transition:all .15s;
+  -webkit-user-select:none;user-select:none;
+}
+.stab.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* sheet content */
+#sheetContent{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.sc{display:none;padding:12px;}
+.sc.on{display:block;}
+
+/* part cards */
+.pc{
+  padding:10px 12px;border:1px solid var(--border);
+  border-radius:10px;margin-bottom:8px;
+}
+.pc .n{font-size:.8rem;font-weight:700;}
+.pc .d{font-size:.68rem;color:var(--muted);margin-top:3px;line-height:1.4;}
+.pc .m{font-size:.65rem;color:var(--pine);margin-top:2px;}
+
+/* bom table */
+.bom-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:280px;}
+th{background:var(--panel2);padding:8px 6px;text-align:left;color:var(--accent);font-weight:700;position:sticky;top:0;}
+td{padding:7px 6px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.btot{
+  margin-top:10px;padding:10px 12px;
+  background:var(--panel2);border-radius:8px;
+  font-size:.78rem;color:var(--accent);font-weight:700;
+}
+
+/* notes */
+.ni{
+  padding:10px 12px;
+  border-left:3px solid var(--accent);
+  background:rgba(240,165,0,.05);
+  border-radius:0 8px 8px 0;
+  margin-bottom:8px;
+  font-size:.72rem;line-height:1.6;
+}
+.ni strong{display:block;margin-bottom:3px;font-size:.74rem;}
+
+/* ── VIEW STRIP (above toolbar, inside viewport) ─────────── */
+#viewStrip{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:4px;z-index:20;
+}
+.vbtn{
+  padding:5px 11px;border-radius:16px;font-size:.66rem;font-weight:700;
+  background:rgba(13,21,32,.82);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+  min-height:30px;display:flex;align-items:center;
+}
+.vbtn.on{background:var(--accent);color:#0c1520;border-color:var(--accent);}
+
+/* ── OVERLAY DIM (when sheet open) ───────────────────────── */
+#dim{
+  position:fixed;inset:0;background:rgba(0,0,0,0);
+  z-index:140;pointer-events:none;
+  transition:background .3s;
+}
+#dim.on{background:rgba(0,0,0,.4);pointer-events:auto;}
 </style>
 </head>
 <body>
-<header>
-  <div class="hdr-title">
-    <span class="proj-name">⚙ Mobile Power Tool Station</span>
-    <span class="proj-sub">96"L × 30"D × 34.5"H &nbsp;|&nbsp; DWE7491 Table Saw + DWE718 Central-Pivot Flip-Top Miter Saw &nbsp;|&nbsp; WS-002</span>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="title">⚙ Mobile Tool Station</div>
+  <div id="infoBtn" onclick="toggleSheet()">ℹ</div>
+</div>
+
+<!-- 3D VIEWPORT -->
+<div id="vp">
+  <div id="viewStrip">
+    <div class="vbtn on" data-v="iso">ISO</div>
+    <div class="vbtn" data-v="front">FRONT</div>
+    <div class="vbtn" data-v="top">TOP</div>
+    <div class="vbtn" data-v="side">SIDE</div>
   </div>
-  <div class="toolbar">
-    <select id="viewPreset"><option value="iso">Isometric</option><option value="front">Front</option><option value="side">Right Side</option><option value="top">Top / Plan</option></select>
-    <button id="flipBtn">⟳ FLIP SAW — Currently: STORED</button>
-    <button id="wireBtn">Wireframe</button>
-    <button id="gridBtn" class="active">Grid</button>
-    <button id="resetBtn">Reset View</button>
+  <div id="stateBadge">Drag to orbit · Pinch to zoom</div>
+</div>
+
+<!-- BOTTOM SHEET -->
+<div id="dim" onclick="closeSheet()"></div>
+<div id="sheet">
+  <div id="sheetHandle">
+    <div class="handle-pill"></div>
+    <div class="handle-row">
+      <span class="handle-title">Project Details</span>
+      <span class="handle-sub">96"L × 30"D × 34.5"H</span>
+    </div>
   </div>
-</header>
-<div class="main">
-  <div id="viewport">
-    <div id="status">Drag to orbit · Scroll to zoom · Right-drag to pan</div>
-    <div class="badge">Units: Inches | 1"=1" | All surfaces at Z=34.5"</div>
-    <div id="flipLabel">⬛ STORED — Table completely flat · Miter saw hidden below</div>
+  <div id="sheetTabs">
+    <div class="stab on" data-t="parts">Parts</div>
+    <div class="stab" data-t="bom">BOM</div>
+    <div class="stab" data-t="notes">Notes</div>
   </div>
-  <div class="sidebar">
-    <div class="sidebar-tabs">
-      <div class="tab active" data-tab="parts">Parts</div>
-      <div class="tab" data-tab="bom">BOM</div>
-      <div class="tab" data-tab="notes">Notes</div>
+  <div id="sheetContent">
+
+    <div class="sc on" id="tab-parts">
+      <div class="pc" style="border-color:#5a9ad0">
+        <div class="n">DeWalt DWE7491RS — Table Saw</div>
+        <div class="d">22"W × 26"D × 13"H body (no stand) · 10" blade · 32.5" rip cap</div>
+        <div class="m">⚙ Cast iron table at Z=34.5" — flush with bench top</div>
+      </div>
+      <div class="pc" style="border-color:#4aa828">
+        <div class="n">★ Flip-Top Platform — Central Pivot</div>
+        <div class="d">24"W × 26"D × 1.5"H torsion box · Rotates 180° around own center axis</div>
+        <div class="m">🪵 Stored: flush at 34.5" · In use: miter saw rises above bench</div>
+      </div>
+      <div class="pc" style="border-color:#5a9ad0">
+        <div class="n">DeWalt DWS718 — 12" Miter Saw</div>
+        <div class="d">23.75"W × 33"D × 18.8"H · Dual bevel sliding compound · 68lb</div>
+        <div class="m">⚙ Mounted to underside of flip platform</div>
+      </div>
+      <div class="pc">
+        <div class="n">Frame — 8 Legs + 15 Rails</div>
+        <div class="d">Legs: 4×4 (3.5"×3.5"×30.75") · Rails: 2×4 (1.5"×3.5")</div>
+        <div class="m">🪵 4×4 Pine legs · 2×4 Pine rails</div>
+      </div>
+      <div class="pc">
+        <div class="n">Work Surfaces — 3/4" MDF</div>
+        <div class="d">All tops at 34.5" · T-track every 12" on outfeed zone</div>
+        <div class="m">🪵 3 sheets 4×8 MDF — waxed for low friction</div>
+      </div>
+      <div class="pc">
+        <div class="n">Storage — 2 Drawers</div>
+        <div class="d">25.5"W × 21"D × 8.5"H each · 22" full-extension soft-close slides</div>
+        <div class="m">🪵 1/2" Baltic Birch plywood</div>
+      </div>
+      <div class="pc">
+        <div class="n">Dust Collection</div>
+        <div class="d">9gal shop vac + cyclone separator lid · 2.5" hose from both saws</div>
+        <div class="m">⚙ Lower right bay — hose routed through back panel</div>
+      </div>
+      <div class="pc">
+        <div class="n">Casters — 6×</div>
+        <div class="d">3" swivel-lock, 400lb each · 4 corners + 2 center</div>
+        <div class="m">⚙ Install last — bench upside down to attach</div>
+      </div>
     </div>
-    <div class="tc active" id="tab-parts">
-      <div class="pc" style="border-color:#4a8abf"><div class="n">★ Flip-Top Platform (Central Pivot)</div><div class="d">24"W × 26"D × 1.5"H torsion box</div><div class="m">🪵 Plywood — top flush at 34.5" when stored</div></div>
-      <div class="pc" style="border-color:#5aaa30"><div class="n">★ Miter Saw DWE718 (below platform)</div><div class="d">23.75"W × 16"D × 18.8"H · Hidden below bench when stored</div><div class="m">⚙ Rotates 180° around central horizontal axis to expose</div></div>
-      <div class="pc" style="border-color:#8060b0"><div class="n">Table Saw — DWE7491RS</div><div class="d">22"W × 26"D × 13"H (body, no stand)</div><div class="m">⚙ Cast iron table surface at 34.5" — COPLANAR</div></div>
-      <div class="pc"><div class="n">Frame Legs (×8)</div><div class="d">3.5" × 3.5" × 30.75"</div><div class="m">🪵 4×4 Pine — Z=3 to 33.75</div></div>
-      <div class="pc"><div class="n">Rails (bottom + top)</div><div class="d">1.5" × 3.5" × varies</div><div class="m">🪵 2×4 Pine</div></div>
-      <div class="pc"><div class="n">Work Surface Panels</div><div class="d">3/4" MDF strips around tool bays</div><div class="m">🪵 All tops at exactly 34.5" — COPLANAR</div></div>
-      <div class="pc"><div class="n">Storage Section</div><div class="d">2 drawers + lower open bay</div><div class="m">🪵 3/4" Birch Plywood</div></div>
-      <div class="pc"><div class="n">Shop Vac + Cyclone</div><div class="d">9gal vac, bucket-lid cyclone separator</div><div class="m">⚙ Lower right bay — dust routed through back panel</div></div>
-      <div class="pc"><div class="n">Casters (×6)</div><div class="d">3" swivel-lock, 400lb rated</div><div class="m">⚙ 4 corners + 2 center — all locking</div></div>
+
+    <div class="sc" id="tab-bom">
+      <div class="bom-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Est.</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>4×4 Pine 8ft (Legs)</td><td>8</td><td>$100</td></tr>
+            <tr><td>2</td><td>2×4 Pine 8ft (Rails)</td><td>10</td><td>$55</td></tr>
+            <tr><td>3</td><td>3/4" Birch Ply 4×8</td><td>4</td><td>$300</td></tr>
+            <tr><td>4</td><td>3/4" MDF 4×8</td><td>3</td><td>$156</td></tr>
+            <tr><td>5</td><td>DeWalt DWE7491RS</td><td>1</td><td>$599</td></tr>
+            <tr><td>6</td><td>DeWalt DWS718 12"</td><td>1</td><td>$599</td></tr>
+            <tr><td>7</td><td>3" Locking Casters 400lb</td><td>6</td><td>$132</td></tr>
+            <tr><td>8</td><td>Shop Vac 9gal</td><td>1</td><td>$89</td></tr>
+            <tr><td>9</td><td>Cyclone Separator Lid</td><td>1</td><td>$35</td></tr>
+            <tr><td>10</td><td>2.5" Dust Hose 10ft</td><td>2</td><td>$48</td></tr>
+            <tr><td>11</td><td>Flip Pivot Hardware</td><td>2pr</td><td>$36</td></tr>
+            <tr><td>12</td><td>22" Drawer Slides pr</td><td>2</td><td>$44</td></tr>
+            <tr><td>13</td><td>T-Track 48" Alum.</td><td>4</td><td>$56</td></tr>
+            <tr><td>14</td><td>Lag Bolts 3/8"×3"</td><td>32</td><td>$21</td></tr>
+            <tr><td>15</td><td>Pocket Screws #8×1.25"</td><td>2bx</td><td>$18</td></tr>
+            <tr><td>16</td><td>Titebond III + Wax</td><td>—</td><td>$42</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="btot">Total Est.: ~$2,330 &nbsp;|&nbsp; Tools: $1,198 &nbsp;|&nbsp; Build: ~$1,132</div>
     </div>
-    <div class="tc" id="tab-bom">
-      <table>
-        <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Cost ea.</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>4×4 Pine 8ft (Legs)</td><td>8</td><td>$12.50</td></tr>
-          <tr><td>2</td><td>2×4 Pine 8ft (Rails)</td><td>10</td><td>$5.50</td></tr>
-          <tr><td>3</td><td>3/4" Birch Ply 4×8</td><td>4</td><td>$75</td></tr>
-          <tr><td>4</td><td>3/4" MDF 4×8 (Surfaces)</td><td>3</td><td>$52</td></tr>
-          <tr><td>5</td><td>DeWalt DWE7491RS Table Saw</td><td>1</td><td>$599</td></tr>
-          <tr><td>6</td><td>DeWalt DWS718 12" Miter Saw</td><td>1</td><td>$599</td></tr>
-          <tr><td>7</td><td>3" Locking Casters 400lb</td><td>6</td><td>$22</td></tr>
-          <tr><td>8</td><td>Shop Vac 9gal</td><td>1</td><td>$89</td></tr>
-          <tr><td>9</td><td>Cyclone Separator Lid</td><td>1</td><td>$35</td></tr>
-          <tr><td>10</td><td>2.5" Dust Hose 10ft</td><td>2</td><td>$24</td></tr>
-          <tr><td>11</td><td>Flip Pivot (shoulder bolt + bearing)</td><td>2</td><td>$18</td></tr>
-          <tr><td>12</td><td>22" Full-Ext Drawer Slides (pr)</td><td>2</td><td>$22</td></tr>
-          <tr><td>13</td><td>T-Track 48" Aluminum</td><td>4</td><td>$14</td></tr>
-          <tr><td>14</td><td>Lag Bolts 3/8"×3" + Washers</td><td>32</td><td>$0.65</td></tr>
-          <tr><td>15</td><td>Pocket Screws #8×1.25" box</td><td>2</td><td>$9</td></tr>
-          <tr><td>16</td><td>Titebond III 16oz</td><td>2</td><td>$12</td></tr>
-          <tr><td>17</td><td>Paste Wax (work surfaces)</td><td>1</td><td>$18</td></tr>
-        </tbody>
-      </table>
-      <div class="btotal">Est. Total: ~$2,330 | Tools: $1,198 | Build: ~$1,132</div>
+
+    <div class="sc" id="tab-notes">
+      <div class="ni"><strong>FLIP MECHANISM</strong>The platform rotates 180° on a central horizontal axis (like a rotisserie). Stored: saw face-down below bench — table completely flat. Flipped: saw rises above bench level, ready to cut. Hit ⟳ FLIP to animate.</div>
+      <div class="ni"><strong>COPLANARITY — CRITICAL</strong>All work surfaces at exactly 34.5". Verify with 48" straightedge across: saw table → outfeed strips → flip platform top. Shim table saw support shelf with lag-bolt levelers until flush.</div>
+      <div class="ni"><strong>PIVOT ALIGNMENT</strong>Shoulder bolt axis at Z=33.75" exactly (center of 1.5" platform = 33.0 + 0.75). Even 1/8" off and stored position won't be flush with bench top.</div>
+      <div class="ni"><strong>BUILD SEQUENCE</strong>1) Legs + bottom rails → 2) Mid + top rails → 3) Back panel → 4) Saw support shelf (level to 34.5") → 5) Drop in table saw → 6) Top MDF panels → 7) Flip platform + pivots → 8) Drawers → 9) Casters last.</div>
+      <div class="ni"><strong>DUST COLLECTION</strong>Drill 3" hole in back panel at Z=26" behind saw bay. Both saws route 2.5" hose to cyclone lid on vac in right lower bay. Use hose hangers on interior back panel.</div>
+      <div class="ni"><strong>SURFACE FINISH</strong>MDF work surfaces: 3 coats paste wax, buff between coats. Frame: 2 coats danish oil. Route T-track slots every 12" across outfeed zone parallel to table saw fence.</div>
     </div>
-    <div class="tc" id="tab-notes">
-      <div class="ni"><strong>FLIP MECHANISM — HOW IT WORKS</strong><br>The platform is a section of the table top on a central horizontal pivot axis. When stored (0°): miter saw hangs below table, table top is completely flat. Hit FLIP: platform rotates 180° around its center — saw comes above surface. Table "hole" is always the same piece of wood, just flipped.</div>
-      <div class="ni"><strong>COPLANARITY — CRITICAL</strong><br>Lay a 48" straightedge across: table saw surface → outfeed strips → flip platform top. Zero gap or rock. Shim table saw support shelf with lag-bolt levelers until all at 34.5".</div>
-      <div class="ni"><strong>PIVOT ALIGNMENT</strong><br>Shoulder bolt axis must be at Z=33.75" (table surface minus 0.75" — the midpoint of the 1.5" thick platform). Off by 1/8" and the stored surface won't be flush.</div>
-      <div class="ni"><strong>BUILD SEQUENCE</strong><br>1) Frame + legs. 2) Bottom rails. 3) Top rails. 4) Back panel. 5) Support shelves. 6) Table saw cutout + install saw (shim flush). 7) Top MDF panels. 8) Flip platform + pivot hardware. 9) Drawers. 10) Install casters last.</div>
-      <div class="ni"><strong>DUST COLLECTION</strong><br>3" hole in back panel at Z=26" behind table saw. Route 2.5" hose to cyclone lid on vac in right lower bay. Miter saw 1.5" port via adaptor to same cyclone.</div>
-    </div>
+
   </div>
 </div>
+
+<!-- BOTTOM TOOLBAR -->
+<div id="toolbar">
+  <button class="tbtn on" id="gridBtn">
+    <span class="icon">⊞</span>
+    <span class="label">GRID</span>
+  </button>
+  <div class="tdiv"></div>
+  <button class="tbtn" id="wireBtn">
+    <span class="icon">◻</span>
+    <span class="label">WIRE</span>
+  </button>
+  <div class="tdiv"></div>
+  <button class="tbtn" id="explodeBtn">
+    <span class="icon">💥</span>
+    <span class="label">EXPLODE</span>
+  </button>
+  <div class="tdiv"></div>
+  <button class="tbtn" id="flipBtn">
+    <span class="icon">⟳</span>
+    <span class="label">FLIP SAW</span>
+  </button>
+  <div class="tdiv"></div>
+  <button class="tbtn" id="sheetBtn" onclick="toggleSheet()">
+    <span class="icon">≡</span>
+    <span class="label">INFO</span>
+  </button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const vp=document.getElementById('viewport');
-const W=()=>vp.clientWidth,H=()=>vp.clientHeight;
+// ─── SHEET LOGIC ────────────────────────────────────────────
+const sheet=document.getElementById('sheet');
+const dim=document.getElementById('dim');
+let sheetOpen=false;
+function openSheet(){sheetOpen=true;sheet.classList.add('open');dim.classList.add('on');}
+function closeSheet(){sheetOpen=false;sheet.classList.remove('open');dim.classList.remove('on');}
+function toggleSheet(){sheetOpen?closeSheet():openSheet();}
 
+// Swipe to close sheet
+let sheetTY=0, sheetSY=0, sheetDragging=false;
+const shHandle=document.getElementById('sheetHandle');
+shHandle.addEventListener('touchstart',e=>{sheetDragging=true;sheetSY=e.touches[0].clientY;sheetTY=0;},{passive:true});
+window.addEventListener('touchmove',e=>{
+  if(!sheetDragging)return;
+  sheetTY=e.touches[0].clientY-sheetSY;
+  if(sheetTY>0&&sheetOpen) sheet.style.transform=`translateY(${sheetTY}px)`;
+},{passive:true});
+window.addEventListener('touchend',()=>{
+  if(!sheetDragging)return;
+  sheetDragging=false;
+  sheet.style.transform='';
+  if(sheetTY>60)closeSheet();
+  sheetTY=0;
+},{passive:true});
+
+// Sheet tabs
+document.querySelectorAll('.stab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.stab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.sc').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.getElementById('tab-'+t.dataset.t).classList.add('on');
+}));
+
+// View buttons
+document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  applyViewPreset(b.dataset.v);
+  camUpdate();
+}));
+
+// ─── THREE.JS SCENE ─────────────────────────────────────────
+const vpEl=document.getElementById('vp');
+const W=()=>vpEl.clientWidth, H=()=>vpEl.clientHeight;
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0c1520);
-
-const camera=new THREE.PerspectiveCamera(42,W()/H(),0.1,5000);
-const renderer=new THREE.WebGLRenderer({antialias:true});
+scene.background=new THREE.Color(0x0b1520);
+const camera=new THREE.PerspectiveCamera(40,W()/H(),.1,6000);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-vp.appendChild(renderer.domElement);
+vpEl.appendChild(renderer.domElement);
 
 // Lights
-const amb=new THREE.AmbientLight(0xfff8e8,0.52); scene.add(amb);
-const sun=new THREE.DirectionalLight(0xfffaec,1.1);
-sun.position.set(80,120,60); sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-160;sun.shadow.camera.right=160;
-sun.shadow.camera.top=160;sun.shadow.camera.bottom=-160;
-sun.shadow.camera.far=600;
+scene.add(new THREE.AmbientLight(0xfff8ee,.50));
+const sun=new THREE.DirectionalLight(0xfffaea,1.05);
+sun.position.set(80,130,70);sun.castShadow=true;
+sun.shadow.mapSize.set(1024,1024);
+sun.shadow.camera.left=-170;sun.shadow.camera.right=170;
+sun.shadow.camera.top=170;sun.shadow.camera.bottom=-170;sun.shadow.camera.far=600;
 scene.add(sun);
-const fill=new THREE.DirectionalLight(0xc0d8ff,0.32); fill.position.set(-50,20,-60); scene.add(fill);
-const rim=new THREE.DirectionalLight(0xffd090,0.18); rim.position.set(0,-40,80); scene.add(rim);
+const fill=new THREE.DirectionalLight(0xb8d4ff,.28); fill.position.set(-60,10,-80); scene.add(fill);
+const rim=new THREE.DirectionalLight(0xffd090,.14); rim.position.set(0,-50,90); scene.add(rim);
 
-const grid=new THREE.GridHelper(260,130,0x1a3050,0x122540);
-grid.receiveShadow=true; scene.add(grid);
+const gridH=new THREE.GridHelper(300,150,0x18304a,0x10263c);
+scene.add(gridH);
 
-// Materials
-const M=(c,r=0.82,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+// ─── MATERIALS ──────────────────────────────────────────────
+const M=(c,r=.82,m=0,op=1)=>{
+  const o={color:c,roughness:r,metalness:m};
+  if(op<1){o.transparent=true;o.opacity=op;}
+  return new THREE.MeshStandardMaterial(o);
+};
 const MAT={
-  pine:   M(0xd4a84b,0.86),
-  ply:    M(0xc29640,0.82),
-  mdf:    M(0xc8b080,0.90),
-  metal:  M(0x8ca0b4,0.30,0.75),
-  yellow: M(0xe8bf18,0.55,0.10),
-  cast:   M(0x6a7880,0.38,0.45),
-  vac:    M(0xd03818,0.65),
-  hose:   M(0x303848,0.92),
-  hw:     M(0x607090,0.28,0.65),
-  seam:   M(0x9a7030,0.95),
-  plyDk:  M(0xb08030,0.84),
+  pine:M(0xd4a84b,.86),ply:M(0xc29640,.82),mdf:M(0xcabc82,.90),mdfW:M(0xd8cc9a,.80),
+  dwY:M(0xf5c000,.42,.08),dwYDk:M(0xd4a200,.52,.05),
+  iron:M(0x4a5560,.20,.72),steel:M(0x9ab0c0,.16,.88),steelDk:M(0x5a7080,.20,.82),
+  alum:M(0xb8c8d0,.26,.72),rubber:M(0x222222,.96),
+  blSilver:M(0xd0d8e0,.08,.96),blTooth:M(0xe8d000,.32,.10),
+  guard:M(0x90b8d0,.18,.10,.50),vacO:M(0xd83808,.65),vacBk:M(0x1a1a1a,.82),
+  hose:M(0x2a2e38,.94),hw:M(0x5a6878,.28,.68),pivot:M(0x8090a0,.18,.82),seam:M(0x9a7830,.95),
 };
 
-const allMeshes=[];
-function mk(w,d,h,mat,px,py,pz,grp=scene,cast=true){
-  const g=new THREE.BoxGeometry(w,h,d);
-  const m=new THREE.Mesh(g,mat);
-  m.position.set(px+w/2, pz+h/2, -(py+d/2));
-  m.castShadow=cast; m.receiveShadow=true;
-  grp.add(m); allMeshes.push(m); return m;
-}
-
-// ── Root group (centered on bench) ──
+// ─── BUILD HELPERS ───────────────────────────────────────────
 const root=new THREE.Group(); scene.add(root);
-// Bench center: x=48, z(Y)=15, y(Z)=17 → offset
+const parts=[];
+function bx(w,d,h,mat,px,py,pz){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(px+w/2,pz+h/2,-(py+d/2));
+  m.castShadow=true;m.receiveShadow=true; return m;
+}
+function cy(r,h,mat,px,py,pz,rx=0,ry=0,rz=0){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),mat);
+  m.position.set(px,pz+h/2,-py);m.rotation.set(rx,ry,rz);
+  m.castShadow=true;m.receiveShadow=true; return m;
+}
+function reg(m,dir,grp=root){
+  grp.add(m);parts.push({mesh:m,home:m.position.clone(),dir:new THREE.Vector3(...dir)});
+  return m;
+}
+function rbx(w,d,h,mat,px,py,pz,dir){return reg(bx(w,d,h,mat,px,py,pz),dir);}
+function rcy(r,h,mat,px,py,pz,dir,rx=0,ry=0,rz=0){return reg(cy(r,h,mat,px,py,pz,rx,ry,rz),dir);}
+
+// ─── BENCH STRUCTURE ─────────────────────────────────────────
+[[1,1],[1,25.5],[91.5,1],[91.5,25.5],[46,1],[46,25.5]].forEach(([x,y])=>{
+  rbx(3.5,3.5,1.5,MAT.hw,x,y,.1,[0,-1,0]);
+  rcy(1.2,1.5,MAT.rubber,x+1.75,y+1.75,1.5,[0,-1,0]);
+});
+// Legs
+rbx(3.5,3.5,30.75,MAT.pine,0,   0,   3,[-1,0, 1]);
+rbx(3.5,3.5,30.75,MAT.pine,92.5,0,   3,[ 1,0, 1]);
+rbx(3.5,3.5,30.75,MAT.pine,0,   26.5,3,[-1,0,-1]);
+rbx(3.5,3.5,30.75,MAT.pine,92.5,26.5,3,[ 1,0,-1]);
+rbx(3.5,3.5,30.75,MAT.pine,31.5,0,   3,[0, 0, 1]);
+rbx(3.5,3.5,30.75,MAT.pine,31.5,26.5,3,[0, 0,-1]);
+rbx(3.5,3.5,30.75,MAT.pine,62.5,0,   3,[0, 0, 1]);
+rbx(3.5,3.5,30.75,MAT.pine,62.5,26.5,3,[0, 0,-1]);
+// Bottom rails
+rbx(89,1.5,3.5,MAT.pine,3.5,0,   3,[0,-1, 0]);
+rbx(89,1.5,3.5,MAT.pine,3.5,28.5,3,[0,-1, 0]);
+rbx(1.5,25,3.5,MAT.pine,3.5,1.5, 3,[0,-1, 0]);
+rbx(1.5,25,3.5,MAT.pine,35, 1.5, 3,[0,-1, 0]);
+rbx(1.5,25,3.5,MAT.pine,91, 1.5, 3,[0,-1, 0]);
+// Mid rails
+rbx(89,1.5,3.5,MAT.pine,3.5,0,   14,[0,-1,.4]);
+rbx(89,1.5,3.5,MAT.pine,3.5,28.5,14,[0,-1,-.4]);
+// Top rails
+rbx(89,1.5,3.5,MAT.pine,3.5,0,   30.25,[0,.4, .4]);
+rbx(89,1.5,3.5,MAT.pine,3.5,28.5,30.25,[0,.4,-.4]);
+rbx(1.5,25,3.5,MAT.pine,3.5,1.5, 30.25,[-.4,.4,0]);
+rbx(1.5,25,3.5,MAT.pine,35, 1.5, 30.25,[0,  .4,0]);
+rbx(1.5,25,3.5,MAT.pine,91, 1.5, 30.25,[.4, .4,0]);
+// Back panel
+rbx(96,.75,30.75,MAT.ply,0,29.25,3,[0,0,-1]);
+// Top panels
+rbx(5,  30,.75,MAT.mdf, 0,  0,  33.75,[-1,1,0]);
+rbx(8,  30,.75,MAT.mdf, 27, 0,  33.75,[0, 1,0]);
+rbx(22, 2, .75,MAT.mdf, 5,  0,  33.75,[0, 1,.4]);
+rbx(22, 2, .75,MAT.mdf, 5,  28, 33.75,[0, 1,-.4]);
+rbx(30, 2, .75,MAT.mdfW,35, 0,  33.75,[0, 1,.4]);
+rbx(30, 2, .75,MAT.mdfW,35, 28, 33.75,[0, 1,-.4]);
+rbx(2,  26,.75,MAT.mdfW,35, 2,  33.75,[-1,1,0]);
+rbx(4,  26,.75,MAT.mdfW,61, 2,  33.75,[1, 1,0]);
+rbx(31, 30,.75,MAT.mdfW,65, 0,  33.75,[1, 1,0]);
+// Saw support
+rbx(26,1.5,11.25,MAT.pine,4,1.5,10,[0,-1,.4]);
+rbx(26,1.5,11.25,MAT.pine,4,27, 10,[0,-1,-.4]);
+rbx(26,23.5,.75, MAT.ply, 4,3,  20.75,[0,-1,0]);
+rbx(26,23.5,.75, MAT.ply, 4,3,  9.25, [0,-1,0]);
+// Storage
+rbx(27,22,.75,MAT.ply,66,4,22.5,[1,0,0]);
+rbx(27,22,.75,MAT.ply,66,4,14.0,[1,0,0]);
+rbx(25.5,21,8.5,MAT.ply,66.75,4,23.5,[1,.4,0]);
+rbx(25.5,21,8.5,MAT.ply,66.75,4,15.0,[1,-.4,0]);
+rbx(26,.75,8.0,MAT.mdf,66.75,3.25,24.0,[1,.5,0]);
+rbx(26,.75,8.0,MAT.mdf,66.75,3.25,15.5,[1,-.5,0]);
+// Vac
+rbx(17,17,18,MAT.vacO,69,5,3,[1.5,-.5,0]);
+rcy(5.5,8,MAT.vacO,75,11,21,[1.5,0,0]);
+rcy(3.5,6,MAT.vacBk,75,11,29,[1.5,0,0]);
+rbx(2,2,6,MAT.hose,27,27,24,[0,0,-1]);
+rbx(2,2,6,MAT.hose,40,27,24,[0,0,-1]);
+
+// ─── TABLE SAW (DWE7491RS) ───────────────────────────────────
+const tsG=new THREE.Group(); root.add(tsG);
+const TX=5,TY=2,TZ=21.5,TW=22,TD=26,TH=13;
+function tsb(w,d,h,mat,px,py,pz){const m=bx(w,d,h,mat,px,py,pz);tsG.add(m);return m;}
+function tsc(r,h,mat,px,py,pz,rx=0,ry=0,rz=0){const m=cy(r,h,mat,px,py,pz,rx,ry,rz);tsG.add(m);return m;}
+
+tsb(TW,TD,7,   MAT.dwY,   TX,TY,TZ);
+tsb(5,TD-4,4,  MAT.dwY,   TX,TY+2,TZ+3);
+tsb(TW,TD,.75, MAT.dwY,   TX,TY,TZ+7);
+tsb(TW-4,TD-6,.75,MAT.vacBk,TX+2,TY+3,TZ+5.5);
+tsb(TW,TD,.75, MAT.iron,  TX,TY,TZ+12.25);
+tsb(.5,TD,.12, MAT.steelDk,TX+7,TY,TZ+13);
+tsb(.5,TD,.12, MAT.steelDk,TX+14,TY,TZ+13);
+tsb(TW+4,.8,.6,MAT.alum,  TX-2,TY-.8,TZ+12.5);
+tsb(TW+4,.8,.6,MAT.alum,  TX-2,TY+TD,TZ+12.5);
+tsb(.6,TD+1.6,2.5,MAT.alum,TX+16,TY-.8,TZ+11.5);
+tsb(3,.6,2.5,  MAT.dwY,   TX+16,TY-.8,TZ+11.5);
+// blade
+{const bx_=TX+10,by_=TY+13,bz_=TZ+11;
+ const bl=new THREE.Mesh(new THREE.CylinderGeometry(5,.05,.06,36),MAT.blSilver);
+ bl.position.set(bx_+.06,bz_+3,-(by_));bl.rotation.set(0,0,Math.PI/2);
+ bl.castShadow=true;tsG.add(bl);
+ const bt=new THREE.Mesh(new THREE.CylinderGeometry(5.15,5.15,.06,36,1,true),MAT.blTooth);
+ bt.position.copy(bl.position);bt.rotation.copy(bl.rotation);tsG.add(bt);
+ const gd=new THREE.Mesh(new THREE.BoxGeometry(.14,7,.3),MAT.guard);
+ gd.position.set(bx_+.08,bz_+5.5,-(by_));tsG.add(gd);
+ const rk=new THREE.Mesh(new THREE.BoxGeometry(.08,6,.28),MAT.vacBk);
+ rk.position.set(bx_-.5,bz_+5,-(by_));tsG.add(rk);}
+tsc(.9,.5,MAT.vacBk,TX+10,TY-.1,TZ+6.5,0,0,Math.PI/2);
+tsc(.3,.8,MAT.steelDk,TX+10,TY-.6,TZ+6.5,0,0,Math.PI/2);
+tsc(.8,.5,MAT.vacBk,TX+TW-.1,TY+8,TZ+7);
+tsb(2,.3,1.5,MAT.vacBk,TX+6,TY-.3,TZ+5);
+tsb(1.5,.15,1,new THREE.MeshStandardMaterial({color:0xdd2020,roughness:.7}),TX+6.25,TY-.45,TZ+5.25);
+
+tsG.children.forEach(m=>{parts.push({mesh:m,home:m.position.clone(),dir:new THREE.Vector3(-1,.7,0)});});
+
+// ═══════════════════════════════════════════════════════════════
+// FLIP GROUP + MITER SAW — clean direct local-coordinate build
+//
+// flipGroup pivot = center of platform = bench X:49, Z:33.75, Y:15
+// LOCAL COORD REFERENCE (no conversion needed):
+//   ly =  0.00  → pivot axis (bench Z=33.75)
+//   ly = +0.75  → platform TOP = bench surface (Z=34.5) ← flush when stored
+//   ly = -0.75  → platform BOTTOM (Z=33.0)
+//   ly < -0.75  → inside bench frame (saw hangs here when stored)
+//   lz = +13    → bench front (toward user)
+//   lz = -13    → bench back
+//   lx = ±12   → platform left/right edges
+//
+// STORED (rotation.x=0):  platform top at bench Z=34.5, saw hidden below
+// FLIPPED (rotation.x=PI): platform inverts, saw rises ABOVE bench
+// ═══════════════════════════════════════════════════════════════
+const PVTZ=33.75;
+const flipG=new THREE.Group();
+// Position pivot in root-local space (root will shift by -48,-17,+15)
+flipG.position.set(49, PVTZ, -15);
+root.add(flipG);
+
+// Helpers: create geometry centered at LOCAL flipGroup position (lx,ly,lz)
+const FD=new THREE.Vector3(0,1.8,0); // explode direction for flip parts
+function fL(w,h,d,mat,lx,ly,lz){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(lx,ly,lz); m.castShadow=true; m.receiveShadow=true;
+  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
+  return m;
+}
+function fC(r,h,mat,lx,ly,lz,rx=0,ry=0,rz=0){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,32),mat);
+  m.position.set(lx,ly,lz); m.rotation.set(rx,ry,rz);
+  m.castShadow=true; m.receiveShadow=true;
+  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
+  return m;
+}
+function fCO(r,h,mat,lx,ly,lz,rx=0,ry=0,rz=0,ts=0,tl=Math.PI*2){
+  // open/partial cylinder
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,40,1,true,ts,tl),mat);
+  m.position.set(lx,ly,lz); m.rotation.set(rx,ry,rz);
+  m.castShadow=true;
+  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
+  return m;
+}
+
+// ── PLATFORM PANEL ─────────────────────────────────────────────
+// 24"W × 26"D × 1.5"H, centered on pivot. Top at ly=+0.75 = bench Z 34.5 ✓
+fL(24,1.5,26, MAT.ply, 0,0,0);
+// Seam lines (hairline grooves showing this is a separate panel)
+fL(24,.07,.22, MAT.seam, 0,.76,-13); // front edge
+fL(24,.07,.22, MAT.seam, 0,.76, 13); // back edge
+fL(.22,.07,26, MAT.seam,-12,.76, 0); // left edge
+fL(.22,.07,26, MAT.seam, 12,.76, 0); // right edge
+// Pivot bearing hardware (bolted to bench frame, visible outside platform ends)
+fL(2,3.5,2.5, MAT.pivot,-13.5,-.5,0);
+fL(2,3.5,2.5, MAT.pivot, 13.5,-.5,0);
+
+// ══════════════════════════════════════════════════════════════
+// DEWALT DWS718 — 12" DOUBLE BEVEL SLIDING COMPOUND MITER SAW
+// All parts in local coords, hanging BELOW platform (ly < -0.75)
+//
+// When stored (rotation=0):  saw is upside-down inside bench frame
+// When flipped (rotation=PI): ly signs invert, saw rises above bench
+//   turntable top (ly=-0.75) → world Z=34.5 ✓ (bench surface height)
+//   blade center (ly=-11)    → world Z=44.75 (10" above bench) ✓
+//   arm top (ly=-14.5)       → world Z=48.25 (13.75" above bench) ✓
+// ══════════════════════════════════════════════════════════════
+
+// 1. CAST IRON TURNTABLE BASE (the flat rotating table, 22"W × 14"D × 0.75"H)
+//    TOP at ly=-0.75 (touching platform underside), CENTER at ly=-1.125
+fL(22,0.75,14,  MAT.iron,    0,-1.125, 0);
+// turntable miter-angle scale ring (raised disc, horizontal)
+fC(7.2,0.1,MAT.steelDk,  0,-0.78, 0);          // default CylGeo = axis Y = horizontal disc ✓
+fC(7.6,0.06,MAT.alum,    0,-0.79, 0);           // detent ring (slightly larger)
+// Positive-stop detent bumps (small tabs around scale)
+for(let a=0;a<8;a++){
+  const ang=a*Math.PI/4;
+  fL(0.6,0.18,0.6, MAT.alum, Math.cos(ang)*7.4,-0.74,Math.sin(ang)*7.4);
+}
+// Support ribs under turntable (casting detail)
+fL(22,0.3,1.5,  MAT.iron,    0,-1.65,-3);
+fL(22,0.3,1.5,  MAT.iron,    0,-1.65, 3);
+
+// 2. FENCE (two separate bars left+right of blade slot, at back of table)
+//    In stored (inverted): fence hangs below turntable toward bench interior
+//    In use: fence stands upright at back of turntable, guiding material
+fL(9,  4.5,0.75, MAT.alum,  -6.5,-3.75,-5.5);  // left fence bar  (lx=-11 to -2)
+fL(9,  4.5,0.75, MAT.alum,   6.5,-3.75,-5.5);  // right fence bar (lx=+2 to +11)
+fL(22, 0.4,0.8,  MAT.alum,   0,  -1.5, -5.5);  // fence base plate (horizontal, across full width)
+// Fence mounting holes (decorative detail)
+fC(0.25,0.5,MAT.steelDk, -6,-1.5,-5.9, Math.PI/2,0,0);
+fC(0.25,0.5,MAT.steelDk,  6,-1.5,-5.9, Math.PI/2,0,0);
+
+// 3. COLUMN / PIVOT POST (the main upright tower at the back)
+//    Connects turntable to arm. In stored: tower hangs down.
+fL(4,  9.5,3.5,  MAT.steelDk,  0,-6.25,-5.5);  // main column body (ly: -1.5 to -11)
+fL(5.5,1.0,5,    MAT.iron,      0,-2.5,  -3);   // bevel pivot knuckle (where arm hinges to column)
+fL(4,  1.5,3.5,  MAT.alum,      0,-1.5,  -5.5); // column cap/top cover
+
+// 4. BEVEL DETENT SCALE (arc around column top, shows bevel angle)
+fC(2.5,0.5,MAT.alum,  1.5,-2.5,-2.5, 0,0,Math.PI/6);
+
+// 5. SLIDE RAILS (two chrome steel tubes, horizontal, carry the head in/out)
+//    Run in local Z direction (bench Y = depth). User pulls head toward lz=+13.
+fL(0.75,0.75,12, MAT.steel, -2.5,-4.0, 0);  // left rail  (lz: -6 to +6)
+fL(0.75,0.75,12, MAT.steel,  2.5,-4.0, 0);  // right rail
+fL(6,   1.8, 3,  MAT.alum,   0,  -4.8, 2);  // rail carriage (slides on rails)
+
+// 6. MAIN HEAD / MOTOR BODY (large yellow DeWalt casting)
+//    This is the biggest piece — contains motor, gearbox, blade arbor
+//    In stored: hanging at ly≈-7.5 to -10.5 (bench Z≈26.25 to 23.25)
+//    In use:   rises to ly≈+7.5 to +10.5 (bench Z≈41.25 to 44.25)
+fL(10, 6.5,5,   MAT.dwY,     0,-7.5, 3.5);  // main yellow casting
+fL(4,  4.5,5.5, MAT.dwYDk,  -6,-7.2, 3.5);  // motor housing (left side, darker)
+fL(2.5,0.6,5,   MAT.alum,    0,-4.6, 3.5);  // arm/casting connector plate
+
+// 7. ARM (links head body to column, the swinging arm)
+fL(2.5,8.5,2,   MAT.steelDk, 0,-4.5, 0.5); // arm shaft (from column pivot down to head)
+fL(3.5,1.5,3,   MAT.alum,    0,-3.0, 0);   // arm pivot block (at column end of arm)
+
+// 8. HANDLE / D-GRIP (user holds this to push blade down)
+//    In use: above blade, user grips it to swing blade down to cut
+fL(1.4,5.5,1.0, MAT.vacBk,  0,-4.5, 6.0);  // handle main body (vertical grip)
+fL(1.0,1.0,1.8, MAT.vacBk,  0,-3.0, 5.5);  // handle top crossbar
+fL(1.0,1.0,1.8, MAT.vacBk,  0,-6.0, 5.5);  // handle bottom crossbar
+fL(0.6,0.5,0.5, MAT.steelDk,0,-4.8, 6.6);  // trigger switch
+
+// 9. BEVEL LOCK KNOB (left side of column, user adjusts bevel angle)
+fC(0.9,0.5,MAT.dwY, -6.2,-2.5,-4.5, 0,0,Math.PI/2);
+// Miter lock knob (right side of turntable base)
+fC(0.9,0.5,MAT.dwY,  11.5,-1.2,0,   Math.PI/2,0,0);
+
+// 10. BLADE DISC (12" diameter, r=6", 0.10" thick steel)
+//     Axis along local X → disc in local YZ plane
+//     Blade face visible from local ±X (bench sides) ← correct for miter saw
+//     rotation.z=PI/2 makes default Y-axis cylinder → X axis
+const BLADE_LY=-11.0, BLADE_LZ=4.0;
+{
+  const blGeo=new THREE.CylinderGeometry(6,.02,.10,44);
+  const bl=new THREE.Mesh(blGeo,MAT.blSilver);
+  bl.position.set(0,BLADE_LY,BLADE_LZ);
+  bl.rotation.set(0,0,Math.PI/2);  // axis along X
+  bl.castShadow=true; flipG.add(bl);
+  parts.push({mesh:bl,home:bl.position.clone(),dir:FD.clone()});
+
+  // Carbide tooth ring (outer edge, gold)
+  const btGeo=new THREE.CylinderGeometry(6.18,6.18,.10,44,1,true);
+  const bt=new THREE.Mesh(btGeo,MAT.blTooth);
+  bt.position.copy(bl.position); bt.rotation.copy(bl.rotation);
+  flipG.add(bt); parts.push({mesh:bt,home:bt.position.clone(),dir:FD.clone()});
+
+  // Arbor plate / blade washer (center)
+  const arGeo=new THREE.CylinderGeometry(0.8,0.8,.15,20);
+  const ar=new THREE.Mesh(arGeo,MAT.steelDk);
+  ar.position.copy(bl.position); ar.rotation.copy(bl.rotation);
+  flipG.add(ar); parts.push({mesh:ar,home:ar.position.clone(),dir:FD.clone()});
+
+  // Anti-kickback pawls (two small plates flanking blade)
+  fL(0.4,1.5,0.4, MAT.steelDk, -1,BLADE_LY+0.5,BLADE_LZ);
+  fL(0.4,1.5,0.4, MAT.steelDk,  1,BLADE_LY+0.5,BLADE_LZ);
+}
+
+// 11. BLADE GUARD (clear polycarbonate, wraps upper half of blade)
+//     Semi-cylindrical shell. In use: covers blade top, open at bottom for cutting.
+//     rotation.z=PI/2 aligns it with blade. thetaStart=0 covers upper arc.
+{
+  const bgGeo=new THREE.CylinderGeometry(6.5,6.5,.18,40,1,true,0,Math.PI);
+  const bg=new THREE.Mesh(bgGeo,MAT.guard);
+  bg.position.set(0,BLADE_LY+3.0,BLADE_LZ); // offset up so guard covers upper half
+  bg.rotation.set(Math.PI,0,Math.PI/2); // axis X, open side faces toward turntable
+  flipG.add(bg); parts.push({mesh:bg,home:bg.position.clone(),dir:FD.clone()});
+  // Guard body (solid housing behind guard)
+  fL(11.5,4.5,3.5, MAT.vacBk, 0,BLADE_LY+2.5,BLADE_LZ-1.5);
+}
+
+// 12. LOWER SAW FOOT / DEPTH STOP
+fL(11,1.2,3, MAT.steelDk,  0,-13.5, 3.5);
+
+// 13. DUST PORT (connects to shop vac hose)
+fL(2.5,2.5,2.5, MAT.vacBk,  0,-13, BLADE_LZ-2);
+fC(1.0,2.0,MAT.hose,         0,-13, BLADE_LZ-3.5, Math.PI/2,0,0);
+
+// ─── CENTER SCENE ────────────────────────────────────────────
+// flipG is a child of root; root offset applies automatically
 root.position.set(-48,-17,15);
-grid.position.set(-48,-17,15);
+gridH.position.set(-48,-17,15);
 
-// ── CASTERS ──
-[[1,1],[1,25.5],[91.5,1],[91.5,25.5],[46,1],[46,25.5]].forEach(([x,y])=>mk(3.5,3.5,2.8,MAT.hw,x,y,0.1,root));
-
-// ── LEGS ──
-[0,31.5,62.5,92.5].forEach(lx=>[0,26.5].forEach(ly=>mk(3.5,3.5,30.75,MAT.pine,lx,ly,3,root)));
-
-// ── BOTTOM RAILS ──
-mk(89,1.5,3.5,MAT.pine,3.5,0,3,root); mk(89,1.5,3.5,MAT.pine,3.5,28.5,3,root);
-mk(1.5,25,3.5,MAT.pine,3.5,1.5,3,root); mk(1.5,25,3.5,MAT.pine,35,1.5,3,root); mk(1.5,25,3.5,MAT.pine,91,1.5,3,root);
-
-// ── MID RAILS ──
-mk(89,1.5,3.5,MAT.pine,3.5,0,14,root); mk(89,1.5,3.5,MAT.pine,3.5,28.5,14,root);
-
-// ── TOP RAILS ──
-mk(89,1.5,3.5,MAT.pine,3.5,0,30.25,root); mk(89,1.5,3.5,MAT.pine,3.5,28.5,30.25,root);
-mk(1.5,25,3.5,MAT.pine,3.5,1.5,30.25,root); mk(1.5,25,3.5,MAT.pine,35,1.5,30.25,root); mk(1.5,25,3.5,MAT.pine,91,1.5,30.25,root);
-
-// ── BACK PANEL ──
-mk(96,0.75,30.75,MAT.ply,0,29.25,3,root);
-
-// ── TABLE SAW SECTION ──
-mk(26,1.5,11.25,MAT.pine,4,1.5,10,root); mk(26,1.5,11.25,MAT.pine,4,27,10,root);
-mk(26,23.5,0.75,MAT.ply,4,3,20.75,root);
-mk(22,26,12.5,MAT.yellow,5,2,21.5,root);         // saw body
-mk(22,26,0.5,MAT.cast,5,2,34.0,root);             // cast iron table top at 34.5" ✓
-// Surround panels
-mk(5,30,0.75,MAT.mdf,0,0,33.75,root);
-mk(8,30,0.75,MAT.mdf,27,0,33.75,root);
-mk(22,2,0.75,MAT.mdf,5,0,33.75,root);
-mk(22,2,0.75,MAT.mdf,5,28,33.75,root);
-// Lower accessory shelf
-mk(26,23.5,0.75,MAT.ply,4,3,9.25,root);
-
-// ── OUTFEED STRIPS (around flip bay) ──
-// Flip bay: x=37..61, y=2..28
-mk(30,2,0.75,MAT.mdf,35,0,33.75,root);   // front
-mk(30,2,0.75,MAT.mdf,35,28,33.75,root);  // back
-mk(2,26,0.75,MAT.mdf,35,2,33.75,root);   // left
-mk(4,26,0.75,MAT.mdf,61,2,33.75,root);   // right
-
-// ── STORAGE SECTION ──
-mk(27,22,0.75,MAT.ply,66,4,22.5,root);
-mk(27,22,0.75,MAT.ply,66,4,14.0,root);
-mk(25.5,21,8.5,MAT.ply,66.75,4,23.5,root);
-mk(25.5,21,8.5,MAT.ply,66.75,4,15.0,root);
-mk(26,0.75,8.0,MAT.plyDk,66.75,3.25,24.0,root);
-mk(26,0.75,8.0,MAT.plyDk,66.75,3.25,15.5,root);
-mk(17,17,18,MAT.vac,69,5,3,root);
-mk(12,12,13,MAT.cast,71,7,21,root);
-mk(2,2,6,MAT.hose,27,27,24,root);
-mk(31,30,0.75,MAT.mdf,65,0,33.75,root);
-
-// ═══════════════════════════════════════════════════════════════════════
-// FLIP-TOP PLATFORM (Central Pivot Axis)
-//
-// The platform IS a section of the table top.
-// It rotates 180° around a horizontal axis through its OWN CENTER.
-//
-// Stored (0°):
-//   - Platform top face = 34.5" (flush with entire bench top)
-//   - Miter saw hangs below, hidden inside bench frame
-//   - From above: looks like any other part of the table
-//
-// In Use (180°):
-//   - Platform has rotated a half turn
-//   - Miter saw (which was on underside) is now on top
-//   - Platform underside now faces down into bench cavity
-//
-// Pivot: runs through X-axis at the platform's vertical center
-//        at Y=15 (center of 2..28 range), Z=33.75 (mid of 33..34.5)
-// ═══════════════════════════════════════════════════════════════════════
-
-const PLAT = { x:37, y:2, w:24, d:26, h:1.5 };
-// Center of platform in world coords (before root offset applied in Three.js):
-const PC = { x: PLAT.x + PLAT.w/2, y: PLAT.y + PLAT.d/2, z: 33.75 };
-// Pivot Z = center of platform thickness = 33 + 0.75 = 33.75
-const PIVOT_Z = 33 + PLAT.h/2; // = 33.75
-
-// flipGroup: positioned at pivot point
-// Three.js axes: x=X, y=Z(up), z=-Y(depth)
-const flipGroup = new THREE.Group();
-// Position in Three.js space (after root offset applied separately)
-flipGroup.position.set(
-  PC.x - 48,          // world X - root.x offset
-  PIVOT_Z - 17,       // world Z - root.y offset
-  -(PC.y) + 15        // -(world Y) + root.z offset
-);
-scene.add(flipGroup);
-
-// ── Platform panel (wood colored — looks like rest of table top) ──
-// Spans ±PLAT.w/2 in X, ±PLAT.h/2 in Y, ±PLAT.d/2 in Z
-const platGeo = new THREE.BoxGeometry(PLAT.w, PLAT.h, PLAT.d);
-const platMesh = new THREE.Mesh(platGeo, MAT.ply);
-platMesh.castShadow = true; platMesh.receiveShadow = true;
-flipGroup.add(platMesh);
-allMeshes.push(platMesh);
-
-// ── Seam lines on stored face (subtle grooves showing it's a separate panel) ──
-const seamMat = MAT.seam;
-function seam(w,h,d,x,y,z){
-  const s=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),seamMat);
-  s.position.set(x,y,z); flipGroup.add(s);
-}
-// Front edge seam (along X)
-seam(PLAT.w, 0.08, 0.25,   0,  PLAT.h/2+0.04,  -PLAT.d/2+0.12);
-seam(PLAT.w, 0.08, 0.25,   0,  PLAT.h/2+0.04,   PLAT.d/2-0.12);
-seam(0.25,   0.08, PLAT.d, -PLAT.w/2+0.12, PLAT.h/2+0.04, 0);
-seam(0.25,   0.08, PLAT.d,  PLAT.w/2-0.12, PLAT.h/2+0.04, 0);
-
-// ── Miter saw mounted to UNDERSIDE of platform ──
-// Local coords: saw sits at y = -(PLAT.h/2) - (saw_h/2) below platform center
-const SAW = {w:23, d:16, h:18.8};
-
-// Saw base/body (yellow DeWalt)
-const sawBodyGeo = new THREE.BoxGeometry(SAW.w, SAW.h, SAW.d);
-const sawBody = new THREE.Mesh(sawBodyGeo, MAT.yellow);
-sawBody.position.set(0, -(PLAT.h/2 + SAW.h/2), 0);
-sawBody.castShadow = true; sawBody.receiveShadow = true;
-flipGroup.add(sawBody); allMeshes.push(sawBody);
-
-// Cast iron miter table (gray, sits at junction of body and underside of platform)
-const sawTableGeo = new THREE.BoxGeometry(SAW.w, 0.7, SAW.d);
-const sawTableMesh = new THREE.Mesh(sawTableGeo, MAT.cast);
-sawTableMesh.position.set(0, -(PLAT.h/2 + 0.35), 0);
-flipGroup.add(sawTableMesh); allMeshes.push(sawTableMesh);
-
-// Miter saw head/arm assembly (darker metal)
-const headGeo = new THREE.BoxGeometry(SAW.w * 0.6, SAW.h * 0.65, SAW.d * 0.45);
-const headMesh = new THREE.Mesh(headGeo, MAT.metal);
-headMesh.position.set(0, -(PLAT.h/2 + SAW.h * 0.68), SAW.d * 0.28);
-flipGroup.add(headMesh); allMeshes.push(headMesh);
-
-// ── Pivot bearing blocks (visible hardware at each side of platform) ──
-function pivotBlock(side) {
-  const g = new THREE.Group();
-  const blk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.2, 2.2), MAT.hw);
-  blk.position.y = 0.8;
-  g.add(blk);
-  // pivot bolt (cylinder-like via thin box)
-  const bolt = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.7, 0.7), MAT.metal);
-  g.add(bolt);
-  g.position.x = side * (PLAT.w/2 + 0.9);
-  flipGroup.add(g);
-}
-pivotBlock(-1); pivotBlock(+1);
-
-// ═══════════════════════════════════════════════════════════════════════
-// ANIMATION & CONTROLS
-// ═══════════════════════════════════════════════════════════════════════
-
-let theta=0.58, phi=1.02, radius=165;
-const target=new THREE.Vector3(0,2,0);
+// ─── CAMERA ──────────────────────────────────────────────────
+let theta=.55,phi=1.05,radius=195; // slightly further out for small screens
+const camT=new THREE.Vector3(0,2,0);
 function camUpdate(){
   camera.position.set(
-    target.x+radius*Math.sin(phi)*Math.cos(theta),
-    target.y+radius*Math.cos(phi),
-    target.z+radius*Math.sin(phi)*Math.sin(theta)
+    camT.x+radius*Math.sin(phi)*Math.cos(theta),
+    camT.y+radius*Math.cos(phi),
+    camT.z+radius*Math.sin(phi)*Math.sin(theta)
   );
-  camera.lookAt(target);
+  camera.lookAt(camT);
 }
 camUpdate();
 
-let drag=false, pm={x:0,y:0};
-renderer.domElement.addEventListener('mousedown',e=>{drag=true;pm={x:e.clientX,y:e.clientY}});
-window.addEventListener('mouseup',()=>drag=false);
+function applyViewPreset(v){
+  ({
+    iso:   ()=>{theta=.55;phi=1.05;radius=195;camT.set(0,2,0);},
+    front: ()=>{theta=1.57;phi=1.56;radius=155;camT.set(0,5,0);},
+    side:  ()=>{theta=0;  phi=1.56;radius=155;camT.set(0,5,0);},
+    top:   ()=>{theta=1.57;phi=.02;radius=215;camT.set(0,10,0);},
+  }[v]||(() => {}))();
+}
+
+// ─── TOUCH ORBIT ─────────────────────────────────────────────
+let t1=null,t2=null,lastDist=0,lastMid={x:0,y:0};
+let isDrag=false,lastT={x:0,y:0};
+
+renderer.domElement.addEventListener('touchstart',e=>{
+  if(sheetOpen){closeSheet();return;}
+  if(e.touches.length===1){
+    isDrag=true; t1=e.touches[0];
+    lastT={x:t1.clientX,y:t1.clientY};
+  } else if(e.touches.length===2){
+    isDrag=false;
+    lastDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    lastMid={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};
+  }
+},{passive:true});
+
+renderer.domElement.addEventListener('touchmove',e=>{
+  if(e.touches.length===1&&isDrag){
+    const dx=e.touches[0].clientX-lastT.x, dy=e.touches[0].clientY-lastT.y;
+    theta-=dx*.008; phi=Math.max(.06,Math.min(Math.PI-.06,phi+dy*.008));
+    lastT={x:e.touches[0].clientX,y:e.touches[0].clientY};
+    camUpdate();
+  } else if(e.touches.length===2){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    radius=Math.max(40,radius*(lastDist/d)); lastDist=d;
+    camUpdate();
+  }
+  e.preventDefault();
+},{passive:false});
+
+renderer.domElement.addEventListener('touchend',()=>{isDrag=false;},{passive:true});
+
+// Mouse fallback (desktop)
+let mouseDown=false,mPrev={x:0,y:0};
+renderer.domElement.addEventListener('mousedown',e=>{mouseDown=true;mPrev={x:e.clientX,y:e.clientY}});
+window.addEventListener('mouseup',()=>mouseDown=false);
 window.addEventListener('mousemove',e=>{
-  if(!drag)return;
-  const dx=e.clientX-pm.x,dy=e.clientY-pm.y;
-  if(e.buttons&1){theta-=dx*.006;phi=Math.max(.05,Math.min(Math.PI-.05,phi+dy*.006));}
+  if(!mouseDown)return;
+  const dx=e.clientX-mPrev.x,dy=e.clientY-mPrev.y;
+  if(e.buttons&1){theta-=dx*.006;phi=Math.max(.06,Math.min(Math.PI-.06,phi+dy*.006));}
   if(e.buttons&2){
     const r=new THREE.Vector3().crossVectors(camera.getWorldDirection(new THREE.Vector3()),new THREE.Vector3(0,1,0)).normalize();
-    target.addScaledVector(r,-dx*.025).y+=dy*.025;
+    camT.addScaledVector(r,-dx*.022);camT.y+=dy*.022;
   }
-  pm={x:e.clientX,y:e.clientY}; camUpdate();
+  mPrev={x:e.clientX,y:e.clientY}; camUpdate();
 });
 renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
-renderer.domElement.addEventListener('wheel',e=>{radius=Math.max(10,radius*(1+e.deltaY*.001));camUpdate();e.preventDefault();},{passive:false});
+renderer.domElement.addEventListener('wheel',e=>{radius=Math.max(40,radius*(1+e.deltaY*.001));camUpdate();e.preventDefault();},{passive:false});
 
-let lastTD=0;
-renderer.domElement.addEventListener('touchstart',e=>{if(e.touches.length===2)lastTD=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);},{passive:true});
-renderer.domElement.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);radius*=lastTD/d;lastTD=d;camUpdate();}e.preventDefault();},{passive:false});
+// ─── TOOLBAR ACTIONS ──────────────────────────────────────────
+const badge=document.getElementById('stateBadge');
 
-const presets={
-  iso:  ()=>{theta=0.58;phi=1.02;radius=165;},
-  front:()=>{theta=1.57;phi=1.56;radius=140;},
-  side: ()=>{theta=0;   phi=1.56;radius=140;},
-  top:  ()=>{theta=1.57;phi=0.02;radius=190;},
-};
-document.getElementById('viewPreset').addEventListener('change',e=>{presets[e.target.value]?.();camUpdate();});
-document.getElementById('resetBtn').addEventListener('click',()=>{presets.iso();target.set(0,2,0);camUpdate();});
-
-// ── Flip animation ──────────────────────────────────────────────────────────
-let flipAngle=0, flipTarget=0, flipping=false;
-const flipBtn=document.getElementById('flipBtn');
-const flipLbl=document.getElementById('flipLabel');
-
-flipBtn.addEventListener('click',()=>{
-  flipTarget = (flipTarget<0.1) ? Math.PI : 0;
-  flipping=true;
-  if(flipTarget>0.1){
-    flipBtn.textContent='⟳ FLIP SAW — Currently: IN USE';
-    flipBtn.classList.add('flipped');
-    flipLbl.textContent='✅ IN USE — Miter saw above bench, ready to cut';
-    flipLbl.classList.add('on');
-  } else {
-    flipBtn.textContent='⟳ FLIP SAW — Currently: STORED';
-    flipBtn.classList.remove('flipped');
-    flipLbl.textContent='⬛ STORED — Table completely flat · Miter saw hidden below';
-    flipLbl.classList.remove('on');
-  }
+// Grid
+let showGrid=true;
+document.getElementById('gridBtn').addEventListener('click',function(){
+  showGrid=!showGrid; gridH.visible=showGrid;
+  this.classList.toggle('on',showGrid);
 });
 
-// ── Wireframe ───────────────────────────────────────────────────────────────
+// Wireframe
 let wire=false;
 document.getElementById('wireBtn').addEventListener('click',function(){
   wire=!wire;
-  allMeshes.forEach(m=>{if(m.material)m.material.wireframe=wire;});
-  this.classList.toggle('active',wire);
+  scene.traverse(o=>{if(o.isMesh&&o.material)o.material.wireframe=wire;});
+  this.classList.toggle('on',wire);
 });
 
-// ── Grid ────────────────────────────────────────────────────────────────────
-let showGrid=true;
-document.getElementById('gridBtn').addEventListener('click',function(){
-  showGrid=!showGrid; grid.visible=showGrid;
-  this.classList.toggle('active',showGrid);
+// Explode
+let explAmt=0,explTgt=0,exploding=false;
+const EXSCALE=26;
+document.getElementById('explodeBtn').addEventListener('click',function(){
+  explTgt=explTgt<.1?1:0; exploding=true;
+  this.classList.toggle('explode-active',explTgt>.1);
+  if(explTgt>.1){
+    badge.textContent='💥 Exploded Assembly View';
+    badge.className='explode-on';
+    theta=.42;phi=.82;radius=260;camT.set(0,5,0);camUpdate();
+  } else {
+    badge.textContent='Drag to orbit · Pinch to zoom';
+    badge.className='';
+    applyViewPreset('iso');camUpdate();
+  }
 });
 
-// ── Sidebar tabs ────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tc').forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  document.getElementById('tab-'+t.dataset.tab).classList.add('active');
-}));
+// Flip
+let flipAngle=0,flipTgt=0,flipping=false;
+document.getElementById('flipBtn').addEventListener('click',function(){
+  flipTgt=flipTgt<.1?Math.PI:0; flipping=true;
+  this.classList.toggle('flip-active',flipTgt>.1);
+  if(flipTgt>.1){
+    badge.textContent='✅ Miter saw IN USE — above bench';
+    badge.className='flip-on';
+  } else {
+    badge.textContent='⬛ STORED — Table flat, saw hidden below';
+    badge.className='';
+  }
+});
 
-// ── Render loop ─────────────────────────────────────────────────────────────
+// ─── RENDER LOOP ──────────────────────────────────────────────
 const clk=new THREE.Clock();
 function animate(){
   requestAnimationFrame(animate);
   const dt=clk.getDelta();
-
-  // Smooth flip (rotates around X axis = bench length direction)
+  // Flip
   if(flipping){
-    const diff=flipTarget-flipAngle;
-    flipAngle+=Math.sign(diff)*Math.min(Math.abs(diff), dt*3.2);
-    flipGroup.rotation.x=flipAngle;
-    if(Math.abs(diff)<0.003){flipAngle=flipTarget;flipGroup.rotation.x=flipTarget;flipping=false;}
+    const d=flipTgt-flipAngle;
+    flipAngle+=Math.sign(d)*Math.min(Math.abs(d),dt*3.0);
+    flipG.rotation.x=flipAngle;
+    if(Math.abs(d)<.003){flipAngle=flipTgt;flipG.rotation.x=flipTgt;flipping=false;}
   }
-
+  // Explode
+  if(exploding){
+    explAmt+=(explTgt-explAmt)*.065;
+    if(Math.abs(explTgt-explAmt)<.001){explAmt=explTgt;exploding=false;}
+    parts.forEach(p=>{
+      const t=explAmt*EXSCALE;
+      p.mesh.position.set(p.home.x+p.dir.x*t,p.home.y+p.dir.y*t,p.home.z+p.dir.z*t);
+    });
+  }
   renderer.setSize(W(),H());
-  camera.aspect=W()/H();
-  camera.updateProjectionMatrix();
+  camera.aspect=W()/H(); camera.updateProjectionMatrix();
   renderer.render(scene,camera);
 }
 animate();
