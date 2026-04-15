@@ -2,926 +2,315 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Tool Station CAD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bodell Deck Floor Plan — 20' × 18'</title>
 <style>
-/* ── RESET & ROOT ─────────────────────────────────────────── */
-:root{
-  --accent:#f0a500;
-  --bg:#0c1520;
-  --panel:#131e2a;
-  --panel2:#1a2a3a;
-  --border:#1e3248;
-  --text:#eaeaea;
-  --muted:#6a8099;
-  --pine:#d4a84b;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bot: env(safe-area-inset-bottom, 0px);
-  --toolbar-h: 56px;          /* bottom toolbar */
-  --topbar-h: 48px;           /* title bar */
-  --sheet-peek: 72px;         /* how much sheet peeks up */
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{
-  width:100%;height:100%;overflow:hidden;
-  background:var(--bg);color:var(--text);
-  font-family:-apple-system,'Segoe UI',sans-serif;
-  touch-action:none;
-}
-
-/* ── TOP BAR ─────────────────────────────────────────────── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;
-  height:calc(var(--topbar-h) + var(--safe-top));
-  padding-top:var(--safe-top);
-  background:rgba(13,21,32,.92);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;
-  padding-left:14px;padding-right:14px;
-  gap:10px;z-index:100;
-}
-#topbar .title{
-  flex:1;font-size:.82rem;font-weight:700;
-  color:var(--accent);letter-spacing:.03em;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-#infoBtn{
-  width:36px;height:36px;border-radius:50%;
-  background:var(--panel2);border:1px solid var(--border);
-  color:var(--muted);font-size:1.1rem;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;flex-shrink:0;
-}
-
-/* ── 3D VIEWPORT ─────────────────────────────────────────── */
-#vp{
-  position:fixed;
-  top:calc(var(--topbar-h) + var(--safe-top));
-  left:0;right:0;
-  bottom:calc(var(--toolbar-h) + var(--safe-bot) + var(--sheet-peek));
-  overflow:hidden;background:var(--bg);
-}
-#vp canvas{display:block;width:100%!important;height:100%!important;}
-
-/* ── STATE BADGE ─────────────────────────────────────────── */
-#stateBadge{
-  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-  background:rgba(8,20,34,.88);
-  backdrop-filter:blur(8px);
-  border:1px solid var(--border);
-  border-radius:20px;padding:5px 14px;
-  font-size:.68rem;color:var(--muted);
-  white-space:nowrap;pointer-events:none;
-  transition:all .3s;z-index:10;
-}
-#stateBadge.flip-on{border-color:#4aa828;color:#80d050;}
-#stateBadge.explode-on{border-color:#7060c8;color:#b090f8;}
-
-/* ── BOTTOM TOOLBAR ──────────────────────────────────────── */
-#toolbar{
-  position:fixed;bottom:0;left:0;right:0;
-  height:calc(var(--toolbar-h) + var(--safe-bot));
-  padding-bottom:var(--safe-bot);
-  background:rgba(13,21,32,.96);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border-top:1px solid var(--border);
-  display:flex;align-items:center;
-  padding-left:8px;padding-right:8px;
-  gap:6px;z-index:200;
-}
-/* Each toolbar button */
-.tbtn{
-  flex:1;height:44px;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:2px;
-  background:transparent;border:none;
-  color:var(--muted);cursor:pointer;
-  border-radius:10px;
-  transition:background .15s, color .15s;
-  -webkit-user-select:none;user-select:none;
-  min-width:0;
-  font-family:inherit;
-}
-.tbtn .icon{font-size:1.25rem;line-height:1;}
-.tbtn .label{font-size:.58rem;font-weight:600;letter-spacing:.02em;line-height:1}
-.tbtn:active{background:rgba(255,255,255,.07);}
-.tbtn.on{color:var(--accent);}
-.tbtn.flip-active{color:#80d050;}
-.tbtn.explode-active{color:#b090f8;}
-
-/* Primary action (Flip + Explode) get a pill background */
-#flipBtn.on,.tbtn#flipBtn.flip-active{
-  background:rgba(74,168,40,.15);
-  color:#80d050;
-}
-#explodeBtn.on,.tbtn#explodeBtn.explode-active{
-  background:rgba(112,96,200,.15);
-  color:#b090f8;
-}
-
-/* divider */
-.tdiv{width:1px;height:28px;background:var(--border);flex-shrink:0;}
-
-/* ── BOTTOM SHEET ────────────────────────────────────────── */
-#sheet{
-  position:fixed;left:0;right:0;
-  bottom:calc(var(--toolbar-h) + var(--safe-bot));
-  /* default: only peek showing */
-  height:calc(100% - var(--topbar-h) - var(--safe-top) - var(--toolbar-h) - var(--safe-bot));
-  transform:translateY(calc(100% - var(--sheet-peek)));
-  background:var(--panel);
-  border-radius:18px 18px 0 0;
-  border:1px solid var(--border);
-  border-bottom:none;
-  z-index:150;
-  transition:transform .32s cubic-bezier(.32,.72,0,1);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-  will-change:transform;
-}
-#sheet.open{transform:translateY(0);}
-
-/* drag handle */
-#sheetHandle{
-  width:100%;height:var(--sheet-peek);
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  cursor:grab;flex-shrink:0;gap:6px;
-  padding:0 16px;
-}
-#sheetHandle:active{cursor:grabbing;}
-.handle-pill{width:36px;height:4px;background:var(--border);border-radius:2px;}
-.handle-row{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;
-}
-.handle-title{font-size:.78rem;font-weight:700;color:var(--text);}
-.handle-sub{font-size:.65rem;color:var(--muted);}
-
-/* sheet tabs */
-#sheetTabs{
-  display:flex;border-bottom:1px solid var(--border);
-  flex-shrink:0;background:var(--panel);
-}
-.stab{
-  flex:1;padding:11px 4px;text-align:center;
-  font-size:.72rem;font-weight:600;
-  color:var(--muted);border-bottom:2px solid transparent;
-  cursor:pointer;transition:all .15s;
-  -webkit-user-select:none;user-select:none;
-}
-.stab.on{color:var(--accent);border-bottom-color:var(--accent);}
-
-/* sheet content */
-#sheetContent{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-.sc{display:none;padding:12px;}
-.sc.on{display:block;}
-
-/* part cards */
-.pc{
-  padding:10px 12px;border:1px solid var(--border);
-  border-radius:10px;margin-bottom:8px;
-}
-.pc .n{font-size:.8rem;font-weight:700;}
-.pc .d{font-size:.68rem;color:var(--muted);margin-top:3px;line-height:1.4;}
-.pc .m{font-size:.65rem;color:var(--pine);margin-top:2px;}
-
-/* bom table */
-.bom-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);}
-table{width:100%;border-collapse:collapse;font-size:.7rem;min-width:280px;}
-th{background:var(--panel2);padding:8px 6px;text-align:left;color:var(--accent);font-weight:700;position:sticky;top:0;}
-td{padding:7px 6px;border-bottom:1px solid var(--border);}
-tr:last-child td{border-bottom:none;}
-tr:nth-child(even) td{background:rgba(255,255,255,.02);}
-.btot{
-  margin-top:10px;padding:10px 12px;
-  background:var(--panel2);border-radius:8px;
-  font-size:.78rem;color:var(--accent);font-weight:700;
-}
-
-/* notes */
-.ni{
-  padding:10px 12px;
-  border-left:3px solid var(--accent);
-  background:rgba(240,165,0,.05);
-  border-radius:0 8px 8px 0;
-  margin-bottom:8px;
-  font-size:.72rem;line-height:1.6;
-}
-.ni strong{display:block;margin-bottom:3px;font-size:.74rem;}
-
-/* ── VIEW STRIP (above toolbar, inside viewport) ─────────── */
-#viewStrip{
-  position:absolute;top:10px;left:50%;transform:translateX(-50%);
-  display:flex;gap:4px;z-index:20;
-}
-.vbtn{
-  padding:5px 11px;border-radius:16px;font-size:.66rem;font-weight:700;
-  background:rgba(13,21,32,.82);
-  backdrop-filter:blur(8px);
-  border:1px solid var(--border);
-  color:var(--muted);cursor:pointer;
-  transition:all .15s;white-space:nowrap;
-  min-height:30px;display:flex;align-items:center;
-}
-.vbtn.on{background:var(--accent);color:#0c1520;border-color:var(--accent);}
-
-/* ── OVERLAY DIM (when sheet open) ───────────────────────── */
-#dim{
-  position:fixed;inset:0;background:rgba(0,0,0,0);
-  z-index:140;pointer-events:none;
-  transition:background .3s;
-}
-#dim.on{background:rgba(0,0,0,.4);pointer-events:auto;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f5f5f0;color:#3d3d3a;display:flex;flex-direction:column;height:100vh}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#fff;border-bottom:1px solid #e8e7e3;flex-shrink:0}
+  .header-left h1{font-size:14px;font-weight:600;line-height:1.2}
+  .header-left span{font-size:11px;color:#888}
+  .header-right{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .furn-btn{font-size:12px;padding:5px 12px;border:1px solid #d3d1c7;border-radius:6px;background:#f8f7f4;color:#5f5e5a;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
+  .furn-btn:hover{background:#e6f1fb;color:#185fa5;border-color:#85b7eb}
+  .furn-btn:active{transform:scale(.97)}
+  .clear-btn{font-size:12px;padding:5px 12px;border:1px solid #f09595;border-radius:6px;background:#fcebeb;color:#a32d2d;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
+  .clear-btn:hover{background:#f7c1c1}
+  .canvas-area{flex:1;position:relative;overflow:hidden;min-height:0}
+  .canvas-area svg{display:block;width:100%;height:100%}
+  .dim-label{font-family:'SF Mono','Courier New',monospace;font-size:10px;fill:#999}
+  .zone-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;font-weight:500;fill:#999}
+  .deck-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;fill:#999}
+  .draggable{cursor:grab}.draggable:active{cursor:grabbing}
+  .icon-btn{cursor:pointer;opacity:.6;transition:opacity .15s}.icon-btn:hover{opacity:1}
+  .type-menu{position:fixed;z-index:200;background:#fff;border:1px solid #d3d1c7;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:10px;display:none;min-width:210px}
+  .type-menu.open{display:block}
+  .type-menu-title{font-size:11px;font-weight:600;color:#888;padding:4px 8px 8px;border-bottom:1px solid #eee;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .type-option{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
+  .type-option:hover{background:#f0f0ec}.type-option.active{background:#e6f1fb}
+  .type-option-preview{flex-shrink:0;border-radius:3px}
+  .type-option-info{display:flex;flex-direction:column}
+  .type-option-name{font-size:13px;font-weight:500;color:#3d3d3a}
+  .type-option-dims{font-size:11px;color:#999;font-family:'SF Mono','Courier New',monospace}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div id="topbar">
-  <div class="title">⚙ Mobile Tool Station</div>
-  <div id="infoBtn" onclick="toggleSheet()">ℹ</div>
-</div>
-
-<!-- 3D VIEWPORT -->
-<div id="vp">
-  <div id="viewStrip">
-    <div class="vbtn on" data-v="iso">ISO</div>
-    <div class="vbtn" data-v="front">FRONT</div>
-    <div class="vbtn" data-v="top">TOP</div>
-    <div class="vbtn" data-v="side">SIDE</div>
+<div class="header">
+  <div class="header-left">
+    <h1>Bodell residence deck</h1>
+    <span>Waterbury, VT · 20' × 18'</span>
   </div>
-  <div id="stateBadge">Drag to orbit · Pinch to zoom</div>
-</div>
-
-<!-- BOTTOM SHEET -->
-<div id="dim" onclick="closeSheet()"></div>
-<div id="sheet">
-  <div id="sheetHandle">
-    <div class="handle-pill"></div>
-    <div class="handle-row">
-      <span class="handle-title">Project Details</span>
-      <span class="handle-sub">96"L × 30"D × 34.5"H</span>
-    </div>
-  </div>
-  <div id="sheetTabs">
-    <div class="stab on" data-t="parts">Parts</div>
-    <div class="stab" data-t="bom">BOM</div>
-    <div class="stab" data-t="notes">Notes</div>
-  </div>
-  <div id="sheetContent">
-
-    <div class="sc on" id="tab-parts">
-      <div class="pc" style="border-color:#5a9ad0">
-        <div class="n">DeWalt DWE7491RS — Table Saw</div>
-        <div class="d">22"W × 26"D × 13"H body (no stand) · 10" blade · 32.5" rip cap</div>
-        <div class="m">⚙ Cast iron table at Z=34.5" — flush with bench top</div>
-      </div>
-      <div class="pc" style="border-color:#4aa828">
-        <div class="n">★ Flip-Top Platform — Central Pivot</div>
-        <div class="d">24"W × 26"D × 1.5"H torsion box · Rotates 180° around own center axis</div>
-        <div class="m">🪵 Stored: flush at 34.5" · In use: miter saw rises above bench</div>
-      </div>
-      <div class="pc" style="border-color:#5a9ad0">
-        <div class="n">DeWalt DWS718 — 12" Miter Saw</div>
-        <div class="d">23.75"W × 33"D × 18.8"H · Dual bevel sliding compound · 68lb</div>
-        <div class="m">⚙ Mounted to underside of flip platform</div>
-      </div>
-      <div class="pc">
-        <div class="n">Frame — 8 Legs + 15 Rails</div>
-        <div class="d">Legs: 4×4 (3.5"×3.5"×30.75") · Rails: 2×4 (1.5"×3.5")</div>
-        <div class="m">🪵 4×4 Pine legs · 2×4 Pine rails</div>
-      </div>
-      <div class="pc">
-        <div class="n">Work Surfaces — 3/4" MDF</div>
-        <div class="d">All tops at 34.5" · T-track every 12" on outfeed zone</div>
-        <div class="m">🪵 3 sheets 4×8 MDF — waxed for low friction</div>
-      </div>
-      <div class="pc">
-        <div class="n">Storage — 2 Drawers</div>
-        <div class="d">25.5"W × 21"D × 8.5"H each · 22" full-extension soft-close slides</div>
-        <div class="m">🪵 1/2" Baltic Birch plywood</div>
-      </div>
-      <div class="pc">
-        <div class="n">Dust Collection</div>
-        <div class="d">9gal shop vac + cyclone separator lid · 2.5" hose from both saws</div>
-        <div class="m">⚙ Lower right bay — hose routed through back panel</div>
-      </div>
-      <div class="pc">
-        <div class="n">Casters — 6×</div>
-        <div class="d">3" swivel-lock, 400lb each · 4 corners + 2 center</div>
-        <div class="m">⚙ Install last — bench upside down to attach</div>
-      </div>
-    </div>
-
-    <div class="sc" id="tab-bom">
-      <div class="bom-wrap">
-        <table>
-          <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Est.</th></tr></thead>
-          <tbody>
-            <tr><td>1</td><td>4×4 Pine 8ft (Legs)</td><td>8</td><td>$100</td></tr>
-            <tr><td>2</td><td>2×4 Pine 8ft (Rails)</td><td>10</td><td>$55</td></tr>
-            <tr><td>3</td><td>3/4" Birch Ply 4×8</td><td>4</td><td>$300</td></tr>
-            <tr><td>4</td><td>3/4" MDF 4×8</td><td>3</td><td>$156</td></tr>
-            <tr><td>5</td><td>DeWalt DWE7491RS</td><td>1</td><td>$599</td></tr>
-            <tr><td>6</td><td>DeWalt DWS718 12"</td><td>1</td><td>$599</td></tr>
-            <tr><td>7</td><td>3" Locking Casters 400lb</td><td>6</td><td>$132</td></tr>
-            <tr><td>8</td><td>Shop Vac 9gal</td><td>1</td><td>$89</td></tr>
-            <tr><td>9</td><td>Cyclone Separator Lid</td><td>1</td><td>$35</td></tr>
-            <tr><td>10</td><td>2.5" Dust Hose 10ft</td><td>2</td><td>$48</td></tr>
-            <tr><td>11</td><td>Flip Pivot Hardware</td><td>2pr</td><td>$36</td></tr>
-            <tr><td>12</td><td>22" Drawer Slides pr</td><td>2</td><td>$44</td></tr>
-            <tr><td>13</td><td>T-Track 48" Alum.</td><td>4</td><td>$56</td></tr>
-            <tr><td>14</td><td>Lag Bolts 3/8"×3"</td><td>32</td><td>$21</td></tr>
-            <tr><td>15</td><td>Pocket Screws #8×1.25"</td><td>2bx</td><td>$18</td></tr>
-            <tr><td>16</td><td>Titebond III + Wax</td><td>—</td><td>$42</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="btot">Total Est.: ~$2,330 &nbsp;|&nbsp; Tools: $1,198 &nbsp;|&nbsp; Build: ~$1,132</div>
-    </div>
-
-    <div class="sc" id="tab-notes">
-      <div class="ni"><strong>FLIP MECHANISM</strong>The platform rotates 180° on a central horizontal axis (like a rotisserie). Stored: saw face-down below bench — table completely flat. Flipped: saw rises above bench level, ready to cut. Hit ⟳ FLIP to animate.</div>
-      <div class="ni"><strong>COPLANARITY — CRITICAL</strong>All work surfaces at exactly 34.5". Verify with 48" straightedge across: saw table → outfeed strips → flip platform top. Shim table saw support shelf with lag-bolt levelers until flush.</div>
-      <div class="ni"><strong>PIVOT ALIGNMENT</strong>Shoulder bolt axis at Z=33.75" exactly (center of 1.5" platform = 33.0 + 0.75). Even 1/8" off and stored position won't be flush with bench top.</div>
-      <div class="ni"><strong>BUILD SEQUENCE</strong>1) Legs + bottom rails → 2) Mid + top rails → 3) Back panel → 4) Saw support shelf (level to 34.5") → 5) Drop in table saw → 6) Top MDF panels → 7) Flip platform + pivots → 8) Drawers → 9) Casters last.</div>
-      <div class="ni"><strong>DUST COLLECTION</strong>Drill 3" hole in back panel at Z=26" behind saw bay. Both saws route 2.5" hose to cyclone lid on vac in right lower bay. Use hose hangers on interior back panel.</div>
-      <div class="ni"><strong>SURFACE FINISH</strong>MDF work surfaces: 3 coats paste wax, buff between coats. Frame: 2 coats danish oil. Route T-track slots every 12" across outfeed zone parallel to table saw fence.</div>
-    </div>
-
+  <div class="header-right">
+    <button class="furn-btn" onclick="addItem('round_table')">Round table</button>
+    <button class="furn-btn" onclick="addItem('rect_table')">Rect. table</button>
+    <button class="furn-btn" onclick="addItem('bistro_table')">Bistro table</button>
+    <button class="furn-btn" onclick="addItem('bistro_stool')">Bistro stool</button>
+    <button class="furn-btn" onclick="addItem('sofa')">Sofa</button>
+    <button class="furn-btn" onclick="addItem('chair')">Chair</button>
+    <button class="furn-btn" onclick="addItem('lounge')">Lounge</button>
+    <button class="furn-btn" onclick="addItem('grill')">Grill</button>
+    <button class="furn-btn" onclick="addItem('planter')">Planter</button>
+    <button class="furn-btn" onclick="addItem('side_table')">Side table</button>
+    <button class="furn-btn" onclick="addItem('umbrella')">Umbrella</button>
+    <button class="clear-btn" onclick="clearAll()">Clear all</button>
   </div>
 </div>
 
-<!-- BOTTOM TOOLBAR -->
-<div id="toolbar">
-  <button class="tbtn on" id="gridBtn">
-    <span class="icon">⊞</span>
-    <span class="label">GRID</span>
-  </button>
-  <div class="tdiv"></div>
-  <button class="tbtn" id="wireBtn">
-    <span class="icon">◻</span>
-    <span class="label">WIRE</span>
-  </button>
-  <div class="tdiv"></div>
-  <button class="tbtn" id="explodeBtn">
-    <span class="icon">💥</span>
-    <span class="label">EXPLODE</span>
-  </button>
-  <div class="tdiv"></div>
-  <button class="tbtn" id="flipBtn">
-    <span class="icon">⟳</span>
-    <span class="label">FLIP SAW</span>
-  </button>
-  <div class="tdiv"></div>
-  <button class="tbtn" id="sheetBtn" onclick="toggleSheet()">
-    <span class="icon">≡</span>
-    <span class="label">INFO</span>
-  </button>
+<div class="canvas-area">
+<!-- viewBox: 20ft wide=480px + margins, 18ft tall=432px + margins -->
+<svg id="plan" viewBox="0 0 700 580" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="0.8" fill="#bbb"/>
+    </pattern>
+    <!-- Deck: top-left(90,55) top-right(570,55) bot-right(570,487) diagonal-end(234,487) diagonal-start(90,343) -->
+    <clipPath id="deckClip">
+      <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="700" height="580" fill="#f5f5f0"/>
+  <g opacity="0.18" clip-path="url(#deckClip)">
+    <rect x="90" y="55" width="480" height="432" fill="url(#dots)"/>
+  </g>
+
+  <!-- Deck outline: 20ft wide × 18ft tall, diagonal bottom-left -->
+  <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z" fill="#fafaf7" stroke="#3d3d3a" stroke-width="1.5"/>
+
+  <!-- Top edge — RAILING -->
+  <line x1="80" y1="55" x2="580" y2="55" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
+  <text class="deck-label" x="330" y="46" text-anchor="middle">railing</text>
+
+  <!-- Right edge — HOUSE WALL (18ft) -->
+  <line x1="570" y1="45" x2="570" y2="497" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
+  <text class="deck-label" x="586" y="274" text-anchor="start" font-size="9" fill="#999">house wall</text>
+
+  <!-- Doorway on bottom-right edge, next to stairs -->
+  <rect x="460" y="481" width="88" height="12" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.8"/>
+  <text class="dim-label" x="504" y="509" text-anchor="middle" font-size="9">doorway</text>
+
+  <!-- Stairs below deck -->
+  <rect x="478" y="495" width="96" height="72" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.45" rx="2"/>
+  <line x1="478" y1="510" x2="574" y2="510" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="525" x2="574" y2="525" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="540" x2="574" y2="540" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="555" x2="574" y2="555" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <text class="zone-label" x="526" y="523" text-anchor="middle" fill="#185fa5" font-size="10">stairs</text>
+  <text class="zone-label" x="526" y="538" text-anchor="middle" fill="#185fa5" font-size="9">DN ↓</text>
+
+  <!-- Railing dashed (left, bottom, and diagonal) -->
+  <path d="M 90 55 L 90 343 L 234 487 L 570 487" fill="none" stroke="#888" stroke-width="0.5" stroke-dasharray="8 4" opacity="0.35"/>
+  <text class="dim-label" x="152" y="428" transform="rotate(-45,152,428)" font-size="9" opacity="0.6">angled corner</text>
+
+  <!-- Dimensions: 20ft top -->
+  <line x1="90" y1="32" x2="570" y2="32" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="90" y1="28" x2="90" y2="36" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="570" y1="28" x2="570" y2="36" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="330" y="28">20'</text>
+
+  <!-- Dimensions: 18ft right (house wall) -->
+  <line x1="608" y1="55" x2="608" y2="487" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="604" y1="55" x2="612" y2="55" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="604" y1="487" x2="612" y2="487" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="612" y="275" transform="rotate(90,612,275)">18'</text>
+
+  <!-- Dimensions: left edge to diagonal start -->
+  <line x1="66" y1="55" x2="66" y2="343" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="62" y1="55" x2="70" y2="55" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="62" y1="343" x2="70" y2="343" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="62" y="202" transform="rotate(-90,62,202)">~12'</text>
+
+  <!-- Dimensions: bottom edge (diagonal end to right) -->
+  <text class="dim-label" x="402" y="482" text-anchor="middle" font-size="9" opacity="0.5">~14'</text>
+
+  <!-- Compass -->
+  <g transform="translate(660,40)">
+    <circle r="14" fill="none" stroke="#d3d1c7" stroke-width="0.5"/>
+    <text class="dim-label" x="-8" y="4" text-anchor="middle" font-size="10" font-weight="500" fill="#5f5e5a">N</text>
+    <line x1="-4" y1="0" x2="8" y2="0" stroke="#bbb" stroke-width="0.5"/>
+  </g>
+
+  <g id="furniture"></g>
+</svg>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div class="type-menu" id="typeMenu"></div>
+
 <script>
-// ─── SHEET LOGIC ────────────────────────────────────────────
-const sheet=document.getElementById('sheet');
-const dim=document.getElementById('dim');
-let sheetOpen=false;
-function openSheet(){sheetOpen=true;sheet.classList.add('open');dim.classList.add('on');}
-function closeSheet(){sheetOpen=false;sheet.classList.remove('open');dim.classList.remove('on');}
-function toggleSheet(){sheetOpen?closeSheet():openSheet();}
+var PX=24,ICON_R=7.5;
 
-// Swipe to close sheet
-let sheetTY=0, sheetSY=0, sheetDragging=false;
-const shHandle=document.getElementById('sheetHandle');
-shHandle.addEventListener('touchstart',e=>{sheetDragging=true;sheetSY=e.touches[0].clientY;sheetTY=0;},{passive:true});
-window.addEventListener('touchmove',e=>{
-  if(!sheetDragging)return;
-  sheetTY=e.touches[0].clientY-sheetSY;
-  if(sheetTY>0&&sheetOpen) sheet.style.transform=`translateY(${sheetTY}px)`;
-},{passive:true});
-window.addEventListener('touchend',()=>{
-  if(!sheetDragging)return;
-  sheetDragging=false;
-  sheet.style.transform='';
-  if(sheetTY>60)closeSheet();
-  sheetTY=0;
-},{passive:true});
-
-// Sheet tabs
-document.querySelectorAll('.stab').forEach(t=>t.addEventListener('click',()=>{
-  document.querySelectorAll('.stab').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.sc').forEach(x=>x.classList.remove('on'));
-  t.classList.add('on');
-  document.getElementById('tab-'+t.dataset.t).classList.add('on');
-}));
-
-// View buttons
-document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on');
-  applyViewPreset(b.dataset.v);
-  camUpdate();
-}));
-
-// ─── THREE.JS SCENE ─────────────────────────────────────────
-const vpEl=document.getElementById('vp');
-const W=()=>vpEl.clientWidth, H=()=>vpEl.clientHeight;
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0b1520);
-const camera=new THREE.PerspectiveCamera(40,W()/H(),.1,6000);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-vpEl.appendChild(renderer.domElement);
-
-// Lights
-scene.add(new THREE.AmbientLight(0xfff8ee,.50));
-const sun=new THREE.DirectionalLight(0xfffaea,1.05);
-sun.position.set(80,130,70);sun.castShadow=true;
-sun.shadow.mapSize.set(1024,1024);
-sun.shadow.camera.left=-170;sun.shadow.camera.right=170;
-sun.shadow.camera.top=170;sun.shadow.camera.bottom=-170;sun.shadow.camera.far=600;
-scene.add(sun);
-const fill=new THREE.DirectionalLight(0xb8d4ff,.28); fill.position.set(-60,10,-80); scene.add(fill);
-const rim=new THREE.DirectionalLight(0xffd090,.14); rim.position.set(0,-50,90); scene.add(rim);
-
-const gridH=new THREE.GridHelper(300,150,0x18304a,0x10263c);
-scene.add(gridH);
-
-// ─── MATERIALS ──────────────────────────────────────────────
-const M=(c,r=.82,m=0,op=1)=>{
-  const o={color:c,roughness:r,metalness:m};
-  if(op<1){o.transparent=true;o.opacity=op;}
-  return new THREE.MeshStandardMaterial(o);
-};
-const MAT={
-  pine:M(0xd4a84b,.86),ply:M(0xc29640,.82),mdf:M(0xcabc82,.90),mdfW:M(0xd8cc9a,.80),
-  dwY:M(0xf5c000,.42,.08),dwYDk:M(0xd4a200,.52,.05),
-  iron:M(0x4a5560,.20,.72),steel:M(0x9ab0c0,.16,.88),steelDk:M(0x5a7080,.20,.82),
-  alum:M(0xb8c8d0,.26,.72),rubber:M(0x222222,.96),
-  blSilver:M(0xd0d8e0,.08,.96),blTooth:M(0xe8d000,.32,.10),
-  guard:M(0x90b8d0,.18,.10,.50),vacO:M(0xd83808,.65),vacBk:M(0x1a1a1a,.82),
-  hose:M(0x2a2e38,.94),hw:M(0x5a6878,.28,.68),pivot:M(0x8090a0,.18,.82),seam:M(0x9a7830,.95),
+var CATEGORIES={
+  round_table:{label:'Round dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
+    {name:'36" round (2-seat)',wFt:3,hFt:3},{name:'42" round (4-seat)',wFt:3.5,hFt:3.5},
+    {name:'48" round (4-6)',wFt:4,hFt:4},{name:'60" round (6-8)',wFt:5,hFt:5}]},
+  rect_table:{label:'Rectangular dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
+    {name:'4-seat (3\' × 4\')',wFt:3,hFt:4},{name:'6-seat (3.5\' × 5\')',wFt:3.5,hFt:5},
+    {name:'8-seat (4\' × 6.5\')',wFt:4,hFt:6.5},{name:'10-seat (4\' × 8\')',wFt:4,hFt:8}]},
+  bistro_table:{label:'Bistro / pub tables',fill:'#D4B896',stroke:'#7A5C2E',textFill:'#4A3518',types:[
+    {name:'24" round bistro',wFt:2,hFt:2},{name:'30" round pub',wFt:2.5,hFt:2.5},
+    {name:'36" round high-top',wFt:3,hFt:3},{name:'24" square bistro',wFt:2,hFt:2}]},
+  bistro_stool:{label:'Bar stools / high chairs',fill:'#C9B99A',stroke:'#7A5C2E',textFill:'#4A3518',types:[
+    {name:'Round stool',wFt:1.25,hFt:1.25},{name:'Square stool',wFt:1.25,hFt:1.25},
+    {name:'Stool w/ back',wFt:1.5,hFt:1.5},{name:'Wide bar chair',wFt:1.75,hFt:1.75}]},
+  sofa:{label:'Sofas',fill:'#FAC775',stroke:'#854F0B',textFill:'#633806',types:[
+    {name:'Loveseat',wFt:5,hFt:2.5},{name:'3-seat sofa',wFt:7,hFt:3},
+    {name:'Bench',wFt:5,hFt:1.5},{name:'Daybed',wFt:6.5,hFt:3}]},
+  chair:{label:'Chairs',fill:'#C0DD97',stroke:'#3B6D11',textFill:'#27500A',types:[
+    {name:'Dining chair',wFt:1.5,hFt:1.5},{name:'Adirondack',wFt:2.5,hFt:3},
+    {name:'Folding chair',wFt:1.5,hFt:1.5},{name:'Rocking chair',wFt:2,hFt:3}]},
+  lounge:{label:'Lounge chairs',fill:'#F5C4B3',stroke:'#993C1D',textFill:'#712B13',types:[
+    {name:'Club chair',wFt:2.5,hFt:2.5},{name:'Chaise lounge',wFt:2.5,hFt:6},
+    {name:'Recliner',wFt:3,hFt:5},{name:'Papasan',wFt:3.5,hFt:3.5}]},
+  grill:{label:'Grills',fill:'#F7C1C1',stroke:'#A32D2D',textFill:'#791F1F',types:[
+    {name:'Portable',wFt:2,hFt:1.5},{name:'Standard grill',wFt:3,hFt:2},
+    {name:'Large grill',wFt:4,hFt:2},{name:'Grill island',wFt:5,hFt:2.5}]},
+  planter:{label:'Planters',fill:'#9FE1CB',stroke:'#0F6E56',textFill:'#085041',types:[
+    {name:'Small pot',wFt:1,hFt:1},{name:'Medium planter',wFt:2,hFt:2},
+    {name:'Long trough',wFt:4,hFt:1},{name:'Large square',wFt:3,hFt:3}]},
+  side_table:{label:'Side tables',fill:'#CECBF6',stroke:'#534AB7',textFill:'#3C3489',types:[
+    {name:'Small round',wFt:1.5,hFt:1.5},{name:'Medium square',wFt:2,hFt:2},
+    {name:'Console table',wFt:4,hFt:1.5},{name:'Coffee table',wFt:4,hFt:2}]},
+  umbrella:{label:'Umbrellas (shade area)',fill:'#ED93B1',stroke:'#993556',textFill:'#72243E',types:[
+    {name:'6 ft umbrella',wFt:6,hFt:6},{name:'8 ft umbrella',wFt:8,hFt:8},
+    {name:'10 ft umbrella',wFt:10,hFt:10},{name:'10 ft rect.',wFt:10,hFt:6.5}]}
 };
 
-// ─── BUILD HELPERS ───────────────────────────────────────────
-const root=new THREE.Group(); scene.add(root);
-const parts=[];
-function bx(w,d,h,mat,px,py,pz){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-  m.position.set(px+w/2,pz+h/2,-(py+d/2));
-  m.castShadow=true;m.receiveShadow=true; return m;
-}
-function cy(r,h,mat,px,py,pz,rx=0,ry=0,rz=0){
-  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,28),mat);
-  m.position.set(px,pz+h/2,-py);m.rotation.set(rx,ry,rz);
-  m.castShadow=true;m.receiveShadow=true; return m;
-}
-function reg(m,dir,grp=root){
-  grp.add(m);parts.push({mesh:m,home:m.position.clone(),dir:new THREE.Vector3(...dir)});
-  return m;
-}
-function rbx(w,d,h,mat,px,py,pz,dir){return reg(bx(w,d,h,mat,px,py,pz),dir);}
-function rcy(r,h,mat,px,py,pz,dir,rx=0,ry=0,rz=0){return reg(cy(r,h,mat,px,py,pz,rx,ry,rz),dir);}
+var svg=document.getElementById('plan'),fg=document.getElementById('furniture');
+var typeMenu=document.getElementById('typeMenu');
+var dragEl=null,dragOff={x:0,y:0},activeMenuEl=null;
 
-// ─── BENCH STRUCTURE ─────────────────────────────────────────
-[[1,1],[1,25.5],[91.5,1],[91.5,25.5],[46,1],[46,25.5]].forEach(([x,y])=>{
-  rbx(3.5,3.5,1.5,MAT.hw,x,y,.1,[0,-1,0]);
-  rcy(1.2,1.5,MAT.rubber,x+1.75,y+1.75,1.5,[0,-1,0]);
-});
-// Legs
-rbx(3.5,3.5,30.75,MAT.pine,0,   0,   3,[-1,0, 1]);
-rbx(3.5,3.5,30.75,MAT.pine,92.5,0,   3,[ 1,0, 1]);
-rbx(3.5,3.5,30.75,MAT.pine,0,   26.5,3,[-1,0,-1]);
-rbx(3.5,3.5,30.75,MAT.pine,92.5,26.5,3,[ 1,0,-1]);
-rbx(3.5,3.5,30.75,MAT.pine,31.5,0,   3,[0, 0, 1]);
-rbx(3.5,3.5,30.75,MAT.pine,31.5,26.5,3,[0, 0,-1]);
-rbx(3.5,3.5,30.75,MAT.pine,62.5,0,   3,[0, 0, 1]);
-rbx(3.5,3.5,30.75,MAT.pine,62.5,26.5,3,[0, 0,-1]);
-// Bottom rails
-rbx(89,1.5,3.5,MAT.pine,3.5,0,   3,[0,-1, 0]);
-rbx(89,1.5,3.5,MAT.pine,3.5,28.5,3,[0,-1, 0]);
-rbx(1.5,25,3.5,MAT.pine,3.5,1.5, 3,[0,-1, 0]);
-rbx(1.5,25,3.5,MAT.pine,35, 1.5, 3,[0,-1, 0]);
-rbx(1.5,25,3.5,MAT.pine,91, 1.5, 3,[0,-1, 0]);
-// Mid rails
-rbx(89,1.5,3.5,MAT.pine,3.5,0,   14,[0,-1,.4]);
-rbx(89,1.5,3.5,MAT.pine,3.5,28.5,14,[0,-1,-.4]);
-// Top rails
-rbx(89,1.5,3.5,MAT.pine,3.5,0,   30.25,[0,.4, .4]);
-rbx(89,1.5,3.5,MAT.pine,3.5,28.5,30.25,[0,.4,-.4]);
-rbx(1.5,25,3.5,MAT.pine,3.5,1.5, 30.25,[-.4,.4,0]);
-rbx(1.5,25,3.5,MAT.pine,35, 1.5, 30.25,[0,  .4,0]);
-rbx(1.5,25,3.5,MAT.pine,91, 1.5, 30.25,[.4, .4,0]);
-// Back panel
-rbx(96,.75,30.75,MAT.ply,0,29.25,3,[0,0,-1]);
-// Top panels
-rbx(5,  30,.75,MAT.mdf, 0,  0,  33.75,[-1,1,0]);
-rbx(8,  30,.75,MAT.mdf, 27, 0,  33.75,[0, 1,0]);
-rbx(22, 2, .75,MAT.mdf, 5,  0,  33.75,[0, 1,.4]);
-rbx(22, 2, .75,MAT.mdf, 5,  28, 33.75,[0, 1,-.4]);
-rbx(30, 2, .75,MAT.mdfW,35, 0,  33.75,[0, 1,.4]);
-rbx(30, 2, .75,MAT.mdfW,35, 28, 33.75,[0, 1,-.4]);
-rbx(2,  26,.75,MAT.mdfW,35, 2,  33.75,[-1,1,0]);
-rbx(4,  26,.75,MAT.mdfW,61, 2,  33.75,[1, 1,0]);
-rbx(31, 30,.75,MAT.mdfW,65, 0,  33.75,[1, 1,0]);
-// Saw support
-rbx(26,1.5,11.25,MAT.pine,4,1.5,10,[0,-1,.4]);
-rbx(26,1.5,11.25,MAT.pine,4,27, 10,[0,-1,-.4]);
-rbx(26,23.5,.75, MAT.ply, 4,3,  20.75,[0,-1,0]);
-rbx(26,23.5,.75, MAT.ply, 4,3,  9.25, [0,-1,0]);
-// Storage
-rbx(27,22,.75,MAT.ply,66,4,22.5,[1,0,0]);
-rbx(27,22,.75,MAT.ply,66,4,14.0,[1,0,0]);
-rbx(25.5,21,8.5,MAT.ply,66.75,4,23.5,[1,.4,0]);
-rbx(25.5,21,8.5,MAT.ply,66.75,4,15.0,[1,-.4,0]);
-rbx(26,.75,8.0,MAT.mdf,66.75,3.25,24.0,[1,.5,0]);
-rbx(26,.75,8.0,MAT.mdf,66.75,3.25,15.5,[1,-.5,0]);
-// Vac
-rbx(17,17,18,MAT.vacO,69,5,3,[1.5,-.5,0]);
-rcy(5.5,8,MAT.vacO,75,11,21,[1.5,0,0]);
-rcy(3.5,6,MAT.vacBk,75,11,29,[1.5,0,0]);
-rbx(2,2,6,MAT.hose,27,27,24,[0,0,-1]);
-rbx(2,2,6,MAT.hose,40,27,24,[0,0,-1]);
+function mk(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag)}
 
-// ─── TABLE SAW (DWE7491RS) ───────────────────────────────────
-const tsG=new THREE.Group(); root.add(tsG);
-const TX=5,TY=2,TZ=21.5,TW=22,TD=26,TH=13;
-function tsb(w,d,h,mat,px,py,pz){const m=bx(w,d,h,mat,px,py,pz);tsG.add(m);return m;}
-function tsc(r,h,mat,px,py,pz,rx=0,ry=0,rz=0){const m=cy(r,h,mat,px,py,pz,rx,ry,rz);tsG.add(m);return m;}
-
-tsb(TW,TD,7,   MAT.dwY,   TX,TY,TZ);
-tsb(5,TD-4,4,  MAT.dwY,   TX,TY+2,TZ+3);
-tsb(TW,TD,.75, MAT.dwY,   TX,TY,TZ+7);
-tsb(TW-4,TD-6,.75,MAT.vacBk,TX+2,TY+3,TZ+5.5);
-tsb(TW,TD,.75, MAT.iron,  TX,TY,TZ+12.25);
-tsb(.5,TD,.12, MAT.steelDk,TX+7,TY,TZ+13);
-tsb(.5,TD,.12, MAT.steelDk,TX+14,TY,TZ+13);
-tsb(TW+4,.8,.6,MAT.alum,  TX-2,TY-.8,TZ+12.5);
-tsb(TW+4,.8,.6,MAT.alum,  TX-2,TY+TD,TZ+12.5);
-tsb(.6,TD+1.6,2.5,MAT.alum,TX+16,TY-.8,TZ+11.5);
-tsb(3,.6,2.5,  MAT.dwY,   TX+16,TY-.8,TZ+11.5);
-// blade
-{const bx_=TX+10,by_=TY+13,bz_=TZ+11;
- const bl=new THREE.Mesh(new THREE.CylinderGeometry(5,.05,.06,36),MAT.blSilver);
- bl.position.set(bx_+.06,bz_+3,-(by_));bl.rotation.set(0,0,Math.PI/2);
- bl.castShadow=true;tsG.add(bl);
- const bt=new THREE.Mesh(new THREE.CylinderGeometry(5.15,5.15,.06,36,1,true),MAT.blTooth);
- bt.position.copy(bl.position);bt.rotation.copy(bl.rotation);tsG.add(bt);
- const gd=new THREE.Mesh(new THREE.BoxGeometry(.14,7,.3),MAT.guard);
- gd.position.set(bx_+.08,bz_+5.5,-(by_));tsG.add(gd);
- const rk=new THREE.Mesh(new THREE.BoxGeometry(.08,6,.28),MAT.vacBk);
- rk.position.set(bx_-.5,bz_+5,-(by_));tsG.add(rk);}
-tsc(.9,.5,MAT.vacBk,TX+10,TY-.1,TZ+6.5,0,0,Math.PI/2);
-tsc(.3,.8,MAT.steelDk,TX+10,TY-.6,TZ+6.5,0,0,Math.PI/2);
-tsc(.8,.5,MAT.vacBk,TX+TW-.1,TY+8,TZ+7);
-tsb(2,.3,1.5,MAT.vacBk,TX+6,TY-.3,TZ+5);
-tsb(1.5,.15,1,new THREE.MeshStandardMaterial({color:0xdd2020,roughness:.7}),TX+6.25,TY-.45,TZ+5.25);
-
-tsG.children.forEach(m=>{parts.push({mesh:m,home:m.position.clone(),dir:new THREE.Vector3(-1,.7,0)});});
-
-// ═══════════════════════════════════════════════════════════════
-// FLIP GROUP + MITER SAW — clean direct local-coordinate build
-//
-// flipGroup pivot = center of platform = bench X:49, Z:33.75, Y:15
-// LOCAL COORD REFERENCE (no conversion needed):
-//   ly =  0.00  → pivot axis (bench Z=33.75)
-//   ly = +0.75  → platform TOP = bench surface (Z=34.5) ← flush when stored
-//   ly = -0.75  → platform BOTTOM (Z=33.0)
-//   ly < -0.75  → inside bench frame (saw hangs here when stored)
-//   lz = +13    → bench front (toward user)
-//   lz = -13    → bench back
-//   lx = ±12   → platform left/right edges
-//
-// STORED (rotation.x=0):  platform top at bench Z=34.5, saw hidden below
-// FLIPPED (rotation.x=PI): platform inverts, saw rises ABOVE bench
-// ═══════════════════════════════════════════════════════════════
-const PVTZ=33.75;
-const flipG=new THREE.Group();
-// Position pivot in root-local space (root will shift by -48,-17,+15)
-flipG.position.set(49, PVTZ, -15);
-root.add(flipG);
-
-// Helpers: create geometry centered at LOCAL flipGroup position (lx,ly,lz)
-const FD=new THREE.Vector3(0,1.8,0); // explode direction for flip parts
-function fL(w,h,d,mat,lx,ly,lz){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-  m.position.set(lx,ly,lz); m.castShadow=true; m.receiveShadow=true;
-  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
-  return m;
-}
-function fC(r,h,mat,lx,ly,lz,rx=0,ry=0,rz=0){
-  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,32),mat);
-  m.position.set(lx,ly,lz); m.rotation.set(rx,ry,rz);
-  m.castShadow=true; m.receiveShadow=true;
-  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
-  return m;
-}
-function fCO(r,h,mat,lx,ly,lz,rx=0,ry=0,rz=0,ts=0,tl=Math.PI*2){
-  // open/partial cylinder
-  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,40,1,true,ts,tl),mat);
-  m.position.set(lx,ly,lz); m.rotation.set(rx,ry,rz);
-  m.castShadow=true;
-  flipG.add(m); parts.push({mesh:m,home:m.position.clone(),dir:FD.clone()});
-  return m;
+function addItem(cat,subIdx,x,y,angle){
+  var c=CATEGORIES[cat],idx=subIdx||0,t=c.types[idx];
+  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
+  var px=x!==undefined?x:300,py=y!==undefined?y:220,rot=angle||0;
+  var g=mk('g');g.setAttribute('class','draggable');
+  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
+  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;g.dataset.rot=rot;
+  buildPiece(g,cat,idx);fg.appendChild(g);
+  g.addEventListener('pointerdown',startDrag);
 }
 
-// ── PLATFORM PANEL ─────────────────────────────────────────────
-// 24"W × 26"D × 1.5"H, centered on pivot. Top at ly=+0.75 = bench Z 34.5 ✓
-fL(24,1.5,26, MAT.ply, 0,0,0);
-// Seam lines (hairline grooves showing this is a separate panel)
-fL(24,.07,.22, MAT.seam, 0,.76,-13); // front edge
-fL(24,.07,.22, MAT.seam, 0,.76, 13); // back edge
-fL(.22,.07,26, MAT.seam,-12,.76, 0); // left edge
-fL(.22,.07,26, MAT.seam, 12,.76, 0); // right edge
-// Pivot bearing hardware (bolted to bench frame, visible outside platform ends)
-fL(2,3.5,2.5, MAT.pivot,-13.5,-.5,0);
-fL(2,3.5,2.5, MAT.pivot, 13.5,-.5,0);
+function buildPiece(g,cat,idx){
+  var c=CATEGORIES[cat],t=c.types[idx];
+  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
+  var rot=parseFloat(g.dataset.rot)||0;
+  while(g.firstChild)g.removeChild(g.firstChild);
+  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;
+  var tr=g.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
+  var px=m?parseFloat(m[1]):300,py=m?parseFloat(m[2]):220;
+  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
 
-// ══════════════════════════════════════════════════════════════
-// DEWALT DWS718 — 12" DOUBLE BEVEL SLIDING COMPOUND MITER SAW
-// All parts in local coords, hanging BELOW platform (ly < -0.75)
-//
-// When stored (rotation=0):  saw is upside-down inside bench frame
-// When flipped (rotation=PI): ly signs invert, saw rises above bench
-//   turntable top (ly=-0.75) → world Z=34.5 ✓ (bench surface height)
-//   blade center (ly=-11)    → world Z=44.75 (10" above bench) ✓
-//   arm top (ly=-14.5)       → world Z=48.25 (13.75" above bench) ✓
-// ══════════════════════════════════════════════════════════════
-
-// 1. CAST IRON TURNTABLE BASE (the flat rotating table, 22"W × 14"D × 0.75"H)
-//    TOP at ly=-0.75 (touching platform underside), CENTER at ly=-1.125
-fL(22,0.75,14,  MAT.iron,    0,-1.125, 0);
-// turntable miter-angle scale ring (raised disc, horizontal)
-fC(7.2,0.1,MAT.steelDk,  0,-0.78, 0);          // default CylGeo = axis Y = horizontal disc ✓
-fC(7.6,0.06,MAT.alum,    0,-0.79, 0);           // detent ring (slightly larger)
-// Positive-stop detent bumps (small tabs around scale)
-for(let a=0;a<8;a++){
-  const ang=a*Math.PI/4;
-  fL(0.6,0.18,0.6, MAT.alum, Math.cos(ang)*7.4,-0.74,Math.sin(ang)*7.4);
-}
-// Support ribs under turntable (casting detail)
-fL(22,0.3,1.5,  MAT.iron,    0,-1.65,-3);
-fL(22,0.3,1.5,  MAT.iron,    0,-1.65, 3);
-
-// 2. FENCE (two separate bars left+right of blade slot, at back of table)
-//    In stored (inverted): fence hangs below turntable toward bench interior
-//    In use: fence stands upright at back of turntable, guiding material
-fL(9,  4.5,0.75, MAT.alum,  -6.5,-3.75,-5.5);  // left fence bar  (lx=-11 to -2)
-fL(9,  4.5,0.75, MAT.alum,   6.5,-3.75,-5.5);  // right fence bar (lx=+2 to +11)
-fL(22, 0.4,0.8,  MAT.alum,   0,  -1.5, -5.5);  // fence base plate (horizontal, across full width)
-// Fence mounting holes (decorative detail)
-fC(0.25,0.5,MAT.steelDk, -6,-1.5,-5.9, Math.PI/2,0,0);
-fC(0.25,0.5,MAT.steelDk,  6,-1.5,-5.9, Math.PI/2,0,0);
-
-// 3. COLUMN / PIVOT POST (the main upright tower at the back)
-//    Connects turntable to arm. In stored: tower hangs down.
-fL(4,  9.5,3.5,  MAT.steelDk,  0,-6.25,-5.5);  // main column body (ly: -1.5 to -11)
-fL(5.5,1.0,5,    MAT.iron,      0,-2.5,  -3);   // bevel pivot knuckle (where arm hinges to column)
-fL(4,  1.5,3.5,  MAT.alum,      0,-1.5,  -5.5); // column cap/top cover
-
-// 4. BEVEL DETENT SCALE (arc around column top, shows bevel angle)
-fC(2.5,0.5,MAT.alum,  1.5,-2.5,-2.5, 0,0,Math.PI/6);
-
-// 5. SLIDE RAILS (two chrome steel tubes, horizontal, carry the head in/out)
-//    Run in local Z direction (bench Y = depth). User pulls head toward lz=+13.
-fL(0.75,0.75,12, MAT.steel, -2.5,-4.0, 0);  // left rail  (lz: -6 to +6)
-fL(0.75,0.75,12, MAT.steel,  2.5,-4.0, 0);  // right rail
-fL(6,   1.8, 3,  MAT.alum,   0,  -4.8, 2);  // rail carriage (slides on rails)
-
-// 6. MAIN HEAD / MOTOR BODY (large yellow DeWalt casting)
-//    This is the biggest piece — contains motor, gearbox, blade arbor
-//    In stored: hanging at ly≈-7.5 to -10.5 (bench Z≈26.25 to 23.25)
-//    In use:   rises to ly≈+7.5 to +10.5 (bench Z≈41.25 to 44.25)
-fL(10, 6.5,5,   MAT.dwY,     0,-7.5, 3.5);  // main yellow casting
-fL(4,  4.5,5.5, MAT.dwYDk,  -6,-7.2, 3.5);  // motor housing (left side, darker)
-fL(2.5,0.6,5,   MAT.alum,    0,-4.6, 3.5);  // arm/casting connector plate
-
-// 7. ARM (links head body to column, the swinging arm)
-fL(2.5,8.5,2,   MAT.steelDk, 0,-4.5, 0.5); // arm shaft (from column pivot down to head)
-fL(3.5,1.5,3,   MAT.alum,    0,-3.0, 0);   // arm pivot block (at column end of arm)
-
-// 8. HANDLE / D-GRIP (user holds this to push blade down)
-//    In use: above blade, user grips it to swing blade down to cut
-fL(1.4,5.5,1.0, MAT.vacBk,  0,-4.5, 6.0);  // handle main body (vertical grip)
-fL(1.0,1.0,1.8, MAT.vacBk,  0,-3.0, 5.5);  // handle top crossbar
-fL(1.0,1.0,1.8, MAT.vacBk,  0,-6.0, 5.5);  // handle bottom crossbar
-fL(0.6,0.5,0.5, MAT.steelDk,0,-4.8, 6.6);  // trigger switch
-
-// 9. BEVEL LOCK KNOB (left side of column, user adjusts bevel angle)
-fC(0.9,0.5,MAT.dwY, -6.2,-2.5,-4.5, 0,0,Math.PI/2);
-// Miter lock knob (right side of turntable base)
-fC(0.9,0.5,MAT.dwY,  11.5,-1.2,0,   Math.PI/2,0,0);
-
-// 10. BLADE DISC (12" diameter, r=6", 0.10" thick steel)
-//     Axis along local X → disc in local YZ plane
-//     Blade face visible from local ±X (bench sides) ← correct for miter saw
-//     rotation.z=PI/2 makes default Y-axis cylinder → X axis
-const BLADE_LY=-11.0, BLADE_LZ=4.0;
-{
-  const blGeo=new THREE.CylinderGeometry(6,.02,.10,44);
-  const bl=new THREE.Mesh(blGeo,MAT.blSilver);
-  bl.position.set(0,BLADE_LY,BLADE_LZ);
-  bl.rotation.set(0,0,Math.PI/2);  // axis along X
-  bl.castShadow=true; flipG.add(bl);
-  parts.push({mesh:bl,home:bl.position.clone(),dir:FD.clone()});
-
-  // Carbide tooth ring (outer edge, gold)
-  const btGeo=new THREE.CylinderGeometry(6.18,6.18,.10,44,1,true);
-  const bt=new THREE.Mesh(btGeo,MAT.blTooth);
-  bt.position.copy(bl.position); bt.rotation.copy(bl.rotation);
-  flipG.add(bt); parts.push({mesh:bt,home:bt.position.clone(),dir:FD.clone()});
-
-  // Arbor plate / blade washer (center)
-  const arGeo=new THREE.CylinderGeometry(0.8,0.8,.15,20);
-  const ar=new THREE.Mesh(arGeo,MAT.steelDk);
-  ar.position.copy(bl.position); ar.rotation.copy(bl.rotation);
-  flipG.add(ar); parts.push({mesh:ar,home:ar.position.clone(),dir:FD.clone()});
-
-  // Anti-kickback pawls (two small plates flanking blade)
-  fL(0.4,1.5,0.4, MAT.steelDk, -1,BLADE_LY+0.5,BLADE_LZ);
-  fL(0.4,1.5,0.4, MAT.steelDk,  1,BLADE_LY+0.5,BLADE_LZ);
-}
-
-// 11. BLADE GUARD (clear polycarbonate, wraps upper half of blade)
-//     Semi-cylindrical shell. In use: covers blade top, open at bottom for cutting.
-//     rotation.z=PI/2 aligns it with blade. thetaStart=0 covers upper arc.
-{
-  const bgGeo=new THREE.CylinderGeometry(6.5,6.5,.18,40,1,true,0,Math.PI);
-  const bg=new THREE.Mesh(bgGeo,MAT.guard);
-  bg.position.set(0,BLADE_LY+3.0,BLADE_LZ); // offset up so guard covers upper half
-  bg.rotation.set(Math.PI,0,Math.PI/2); // axis X, open side faces toward turntable
-  flipG.add(bg); parts.push({mesh:bg,home:bg.position.clone(),dir:FD.clone()});
-  // Guard body (solid housing behind guard)
-  fL(11.5,4.5,3.5, MAT.vacBk, 0,BLADE_LY+2.5,BLADE_LZ-1.5);
-}
-
-// 12. LOWER SAW FOOT / DEPTH STOP
-fL(11,1.2,3, MAT.steelDk,  0,-13.5, 3.5);
-
-// 13. DUST PORT (connects to shop vac hose)
-fL(2.5,2.5,2.5, MAT.vacBk,  0,-13, BLADE_LZ-2);
-fC(1.0,2.0,MAT.hose,         0,-13, BLADE_LZ-3.5, Math.PI/2,0,0);
-
-// ─── CENTER SCENE ────────────────────────────────────────────
-// flipG is a child of root; root offset applies automatically
-root.position.set(-48,-17,15);
-gridH.position.set(-48,-17,15);
-
-// ─── CAMERA ──────────────────────────────────────────────────
-let theta=.55,phi=1.05,radius=195; // slightly further out for small screens
-const camT=new THREE.Vector3(0,2,0);
-function camUpdate(){
-  camera.position.set(
-    camT.x+radius*Math.sin(phi)*Math.cos(theta),
-    camT.y+radius*Math.cos(phi),
-    camT.z+radius*Math.sin(phi)*Math.sin(theta)
-  );
-  camera.lookAt(camT);
-}
-camUpdate();
-
-function applyViewPreset(v){
-  ({
-    iso:   ()=>{theta=.55;phi=1.05;radius=195;camT.set(0,2,0);},
-    front: ()=>{theta=1.57;phi=1.56;radius=155;camT.set(0,5,0);},
-    side:  ()=>{theta=0;  phi=1.56;radius=155;camT.set(0,5,0);},
-    top:   ()=>{theta=1.57;phi=.02;radius=215;camT.set(0,10,0);},
-  }[v]||(() => {}))();
-}
-
-// ─── TOUCH ORBIT ─────────────────────────────────────────────
-let t1=null,t2=null,lastDist=0,lastMid={x:0,y:0};
-let isDrag=false,lastT={x:0,y:0};
-
-renderer.domElement.addEventListener('touchstart',e=>{
-  if(sheetOpen){closeSheet();return;}
-  if(e.touches.length===1){
-    isDrag=true; t1=e.touches[0];
-    lastT={x:t1.clientX,y:t1.clientY};
-  } else if(e.touches.length===2){
-    isDrag=false;
-    lastDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    lastMid={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};
-  }
-},{passive:true});
-
-renderer.domElement.addEventListener('touchmove',e=>{
-  if(e.touches.length===1&&isDrag){
-    const dx=e.touches[0].clientX-lastT.x, dy=e.touches[0].clientY-lastT.y;
-    theta-=dx*.008; phi=Math.max(.06,Math.min(Math.PI-.06,phi+dy*.008));
-    lastT={x:e.touches[0].clientX,y:e.touches[0].clientY};
-    camUpdate();
-  } else if(e.touches.length===2){
-    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    radius=Math.max(40,radius*(lastDist/d)); lastDist=d;
-    camUpdate();
-  }
-  e.preventDefault();
-},{passive:false});
-
-renderer.domElement.addEventListener('touchend',()=>{isDrag=false;},{passive:true});
-
-// Mouse fallback (desktop)
-let mouseDown=false,mPrev={x:0,y:0};
-renderer.domElement.addEventListener('mousedown',e=>{mouseDown=true;mPrev={x:e.clientX,y:e.clientY}});
-window.addEventListener('mouseup',()=>mouseDown=false);
-window.addEventListener('mousemove',e=>{
-  if(!mouseDown)return;
-  const dx=e.clientX-mPrev.x,dy=e.clientY-mPrev.y;
-  if(e.buttons&1){theta-=dx*.006;phi=Math.max(.06,Math.min(Math.PI-.06,phi+dy*.006));}
-  if(e.buttons&2){
-    const r=new THREE.Vector3().crossVectors(camera.getWorldDirection(new THREE.Vector3()),new THREE.Vector3(0,1,0)).normalize();
-    camT.addScaledVector(r,-dx*.022);camT.y+=dy*.022;
-  }
-  mPrev={x:e.clientX,y:e.clientY}; camUpdate();
-});
-renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
-renderer.domElement.addEventListener('wheel',e=>{radius=Math.max(40,radius*(1+e.deltaY*.001));camUpdate();e.preventDefault();},{passive:false});
-
-// ─── TOOLBAR ACTIONS ──────────────────────────────────────────
-const badge=document.getElementById('stateBadge');
-
-// Grid
-let showGrid=true;
-document.getElementById('gridBtn').addEventListener('click',function(){
-  showGrid=!showGrid; gridH.visible=showGrid;
-  this.classList.toggle('on',showGrid);
-});
-
-// Wireframe
-let wire=false;
-document.getElementById('wireBtn').addEventListener('click',function(){
-  wire=!wire;
-  scene.traverse(o=>{if(o.isMesh&&o.material)o.material.wireframe=wire;});
-  this.classList.toggle('on',wire);
-});
-
-// Explode
-let explAmt=0,explTgt=0,exploding=false;
-const EXSCALE=26;
-document.getElementById('explodeBtn').addEventListener('click',function(){
-  explTgt=explTgt<.1?1:0; exploding=true;
-  this.classList.toggle('explode-active',explTgt>.1);
-  if(explTgt>.1){
-    badge.textContent='💥 Exploded Assembly View';
-    badge.className='explode-on';
-    theta=.42;phi=.82;radius=260;camT.set(0,5,0);camUpdate();
+  var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
+  if(isRound){
+    var circ=mk('ellipse');circ.setAttribute('cx',w/2);circ.setAttribute('cy',h/2);
+    circ.setAttribute('rx',w/2);circ.setAttribute('ry',h/2);
+    circ.setAttribute('fill',c.fill);circ.setAttribute('stroke',c.stroke);
+    circ.setAttribute('stroke-width','1');g.appendChild(circ);
   } else {
-    badge.textContent='Drag to orbit · Pinch to zoom';
-    badge.className='';
-    applyViewPreset('iso');camUpdate();
+    var r=mk('rect');r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
+    r.setAttribute('fill',c.fill);r.setAttribute('stroke',c.stroke);
+    r.setAttribute('stroke-width','1');g.appendChild(r);
   }
-});
 
-// Flip
-let flipAngle=0,flipTgt=0,flipping=false;
-document.getElementById('flipBtn').addEventListener('click',function(){
-  flipTgt=flipTgt<.1?Math.PI:0; flipping=true;
-  this.classList.toggle('flip-active',flipTgt>.1);
-  if(flipTgt>.1){
-    badge.textContent='✅ Miter saw IN USE — above bench';
-    badge.className='flip-on';
-  } else {
-    badge.textContent='⬛ STORED — Table flat, saw hidden below';
-    badge.className='';
-  }
-});
+  var small=(w<48||h<48),fs=small?7:9;
+  var txt=mk('text');txt.setAttribute('x',w/2);txt.setAttribute('y',h/2-(small?3:5));
+  txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','central');
+  txt.setAttribute('font-size',fs);txt.setAttribute('font-family','-apple-system,Segoe UI,Helvetica,Arial,sans-serif');
+  txt.setAttribute('fill',c.textFill);txt.setAttribute('font-weight','500');
+  txt.setAttribute('pointer-events','none');txt.textContent=t.name;g.appendChild(txt);
 
-// ─── RENDER LOOP ──────────────────────────────────────────────
-const clk=new THREE.Clock();
-function animate(){
-  requestAnimationFrame(animate);
-  const dt=clk.getDelta();
-  // Flip
-  if(flipping){
-    const d=flipTgt-flipAngle;
-    flipAngle+=Math.sign(d)*Math.min(Math.abs(d),dt*3.0);
-    flipG.rotation.x=flipAngle;
-    if(Math.abs(d)<.003){flipAngle=flipTgt;flipG.rotation.x=flipTgt;flipping=false;}
+  var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
+  var sft=mk('text');sft.setAttribute('x',w/2);sft.setAttribute('y',h/2+(small?6:7));
+  sft.setAttribute('text-anchor','middle');sft.setAttribute('dominant-baseline','central');
+  sft.setAttribute('font-size','7');sft.setAttribute('font-family','SF Mono,Courier New,monospace');
+  sft.setAttribute('fill',c.textFill);sft.setAttribute('opacity','0.6');
+  sft.setAttribute('pointer-events','none');sft.textContent=sqft+' sq ft';g.appendChild(sft);
+
+  if(!small){
+    var dims=mk('text');dims.setAttribute('x',w/2);dims.setAttribute('y',h/2+16);
+    dims.setAttribute('text-anchor','middle');dims.setAttribute('dominant-baseline','central');
+    dims.setAttribute('font-size','7');dims.setAttribute('font-family','SF Mono,Courier New,monospace');
+    dims.setAttribute('fill',c.textFill);dims.setAttribute('opacity','0.45');
+    dims.setAttribute('pointer-events','none');dims.textContent=t.wFt+"' × "+t.hFt+"'";g.appendChild(dims);
   }
-  // Explode
-  if(exploding){
-    explAmt+=(explTgt-explAmt)*.065;
-    if(Math.abs(explTgt-explAmt)<.001){explAmt=explTgt;exploding=false;}
-    parts.forEach(p=>{
-      const t=explAmt*EXSCALE;
-      p.mesh.position.set(p.home.x+p.dir.x*t,p.home.y+p.dir.y*t,p.home.z+p.dir.z*t);
-    });
-  }
-  renderer.setSize(W(),H());
-  camera.aspect=W()/H(); camera.updateProjectionMatrix();
-  renderer.render(scene,camera);
+
+  // MENU (upper-left)
+  var mg=mk('g');mg.setAttribute('class','icon-btn');
+  mg.setAttribute('transform','translate('+(ICON_R+2)+','+(ICON_R+2)+')');
+  var mbg=mk('circle');mbg.setAttribute('r',ICON_R);mbg.setAttribute('fill','#444');mbg.setAttribute('opacity','0.8');mg.appendChild(mbg);
+  [-2.2,0,2.2].forEach(function(dy){var ml=mk('line');ml.setAttribute('x1','-3');ml.setAttribute('y1',dy);ml.setAttribute('x2','3');ml.setAttribute('y2',dy);ml.setAttribute('stroke','#fff');ml.setAttribute('stroke-width','1.2');ml.setAttribute('stroke-linecap','round');mg.appendChild(ml);});
+  mg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();openTypeMenu(g,cat,idx,e);});g.appendChild(mg);
+
+  // DELETE (upper-right)
+  var xg=mk('g');xg.setAttribute('class','icon-btn');
+  xg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(ICON_R+2)+')');
+  var xbg=mk('circle');xbg.setAttribute('r',ICON_R);xbg.setAttribute('fill','#a32d2d');xbg.setAttribute('opacity','0.8');xg.appendChild(xbg);
+  [[-3,-3,3,3],[3,-3,-3,3]].forEach(function(coords){var xl=mk('line');xl.setAttribute('x1',coords[0]);xl.setAttribute('y1',coords[1]);xl.setAttribute('x2',coords[2]);xl.setAttribute('y2',coords[3]);xl.setAttribute('stroke','#fff');xl.setAttribute('stroke-width','1.5');xl.setAttribute('stroke-linecap','round');xg.appendChild(xl);});
+  xg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();g.remove();closeMenu();});g.appendChild(xg);
+
+  // ROTATE 45° (bottom-right)
+  var rg=mk('g');rg.setAttribute('class','icon-btn');
+  rg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(h-ICON_R-2)+')');
+  var rbg=mk('circle');rbg.setAttribute('r',ICON_R);rbg.setAttribute('fill','#185fa5');rbg.setAttribute('opacity','0.8');rg.appendChild(rbg);
+  var arc=mk('path');arc.setAttribute('d','M3,-1 A4,4 0 1,0 1,3');arc.setAttribute('fill','none');arc.setAttribute('stroke','#fff');arc.setAttribute('stroke-width','1.4');arc.setAttribute('stroke-linecap','round');rg.appendChild(arc);
+  var ah=mk('path');ah.setAttribute('d','M3,-3.5 L3,0.5 L5.5,-0.5 Z');ah.setAttribute('fill','#fff');rg.appendChild(ah);
+  rg.addEventListener('click',function(e){
+    e.stopPropagation();e.preventDefault();closeMenu();
+    var curRot=(parseFloat(g.dataset.rot)||0)+45;if(curRot>=360)curRot-=360;
+    g.dataset.rot=curRot;buildPiece(g,g.dataset.cat,parseInt(g.dataset.subIdx));
+  });g.appendChild(rg);
 }
-animate();
+
+function openTypeMenu(gEl,cat,currentIdx,evt){
+  closeMenu();activeMenuEl=gEl;var c=CATEGORIES[cat],mx=evt.clientX+12,my=evt.clientY-20;
+  var html='<div class="type-menu-title">'+c.label+'</div>';
+  var maxFt=0;c.types.forEach(function(t){maxFt=Math.max(maxFt,t.wFt,t.hFt)});var ps=40/maxFt;
+  c.types.forEach(function(t,i){
+    var pw=Math.max(8,Math.round(t.wFt*ps)),ph=Math.max(8,Math.round(t.hFt*ps));
+    var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
+    var active=(i===currentIdx)?' active':'';
+    var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
+    var br=isRound?';border-radius:50%':'';
+    html+='<div class="type-option'+active+'" onclick="selectType(\''+cat+'\','+i+')">';
+    html+='<div class="type-option-preview" style="width:'+pw+'px;height:'+ph+'px;background:'+c.fill+';border:1.5px solid '+c.stroke+br+'"></div>';
+    html+='<div class="type-option-info"><span class="type-option-name">'+t.name+'</span>';
+    html+='<span class="type-option-dims">'+t.wFt+"' × "+t.hFt+"' · "+sqft+' sq ft</span></div></div>';
+  });
+  typeMenu.innerHTML=html;
+  typeMenu.style.left=Math.min(mx,window.innerWidth-240)+'px';
+  typeMenu.style.top=Math.min(my,window.innerHeight-280)+'px';
+  typeMenu.classList.add('open');
+}
+function selectType(cat,idx){if(!activeMenuEl)return;buildPiece(activeMenuEl,cat,idx);closeMenu();}
+function closeMenu(){typeMenu.classList.remove('open');activeMenuEl=null;}
+document.addEventListener('click',function(e){if(!typeMenu.contains(e.target))closeMenu()});
+
+function clearAll(){fg.innerHTML='';closeMenu();placeGrill();}
+function placeGrill(){addItem('grill',1,145,305,-45);}
+
+function getPoint(e){var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+function startDrag(e){
+  if(e.target.closest('.icon-btn'))return;
+  e.preventDefault();closeMenu();dragEl=e.currentTarget;
+  var p=getPoint(e),tr=dragEl.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
+  dragOff.x=p.x-parseFloat(m[1]);dragOff.y=p.y-parseFloat(m[2]);
+  document.addEventListener('pointermove',onDrag);document.addEventListener('pointerup',endDrag);
+}
+function onDrag(e){
+  if(!dragEl)return;var p=getPoint(e);
+  var rot=dragEl.dataset.rot||0,w=dragEl.dataset.w||0,h=dragEl.dataset.h||0;
+  dragEl.setAttribute('transform','translate('+Math.round(p.x-dragOff.x)+','+Math.round(p.y-dragOff.y)+') rotate('+rot+','+(w/2)+','+(h/2)+')');
+}
+function endDrag(){dragEl=null;document.removeEventListener('pointermove',onDrag);document.removeEventListener('pointerup',endDrag);}
+
+placeGrill();
 </script>
 </body>
 </html>
