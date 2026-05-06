@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bodell Deck Floor Plan — 20' × 18'</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f5f5f0;color:#3d3d3a;display:flex;flex-direction:column;height:100vh}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#fff;border-bottom:1px solid #e8e7e3;flex-shrink:0}
+  .header-left h1{font-size:14px;font-weight:600;line-height:1.2}
+  .header-left span{font-size:11px;color:#888}
+  .header-right{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .furn-btn{font-size:12px;padding:5px 12px;border:1px solid #d3d1c7;border-radius:6px;background:#f8f7f4;color:#5f5e5a;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
+  .furn-btn:hover{background:#e6f1fb;color:#185fa5;border-color:#85b7eb}
+  .furn-btn:active{transform:scale(.97)}
+  .clear-btn{font-size:12px;padding:5px 12px;border:1px solid #f09595;border-radius:6px;background:#fcebeb;color:#a32d2d;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
+  .clear-btn:hover{background:#f7c1c1}
+  .canvas-area{flex:1;position:relative;overflow:hidden;min-height:0}
+  .canvas-area svg{display:block;width:100%;height:100%}
+  .dim-label{font-family:'SF Mono','Courier New',monospace;font-size:10px;fill:#999}
+  .zone-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;font-weight:500;fill:#999}
+  .deck-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;fill:#999}
+  .draggable{cursor:grab}.draggable:active{cursor:grabbing}
+  .icon-btn{cursor:pointer;opacity:.6;transition:opacity .15s}.icon-btn:hover{opacity:1}
+  .type-menu{position:fixed;z-index:200;background:#fff;border:1px solid #d3d1c7;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:10px;display:none;min-width:210px}
+  .type-menu.open{display:block}
+  .type-menu-title{font-size:11px;font-weight:600;color:#888;padding:4px 8px 8px;border-bottom:1px solid #eee;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .type-option{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
+  .type-option:hover{background:#f0f0ec}.type-option.active{background:#e6f1fb}
+  .type-option-preview{flex-shrink:0;border-radius:3px}
+  .type-option-info{display:flex;flex-direction:column}
+  .type-option-name{font-size:13px;font-weight:500;color:#3d3d3a}
+  .type-option-dims{font-size:11px;color:#999;font-family:'SF Mono','Courier New',monospace}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Bodell residence deck</h1>
+    <span>Waterbury, VT · 20' × 18'</span>
+  </div>
+  <div class="header-right">
+    <button class="furn-btn" onclick="addItem('round_table')">Round table</button>
+    <button class="furn-btn" onclick="addItem('rect_table')">Rect. table</button>
+    <button class="furn-btn" onclick="addItem('bistro_table')">Bistro table</button>
+    <button class="furn-btn" onclick="addItem('bistro_stool')">Bistro stool</button>
+    <button class="furn-btn" onclick="addItem('sofa')">Sofa</button>
+    <button class="furn-btn" onclick="addItem('chair')">Chair</button>
+    <button class="furn-btn" onclick="addItem('lounge')">Lounge</button>
+    <button class="furn-btn" onclick="addItem('grill')">Grill</button>
+    <button class="furn-btn" onclick="addItem('planter')">Planter</button>
+    <button class="furn-btn" onclick="addItem('side_table')">Side table</button>
+    <button class="furn-btn" onclick="addItem('umbrella')">Umbrella</button>
+    <button class="clear-btn" onclick="clearAll()">Clear all</button>
+  </div>
+</div>
+
+<div class="canvas-area">
+<!-- viewBox: 20ft wide=480px + margins, 18ft tall=432px + margins -->
+<svg id="plan" viewBox="0 0 700 580" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="0.8" fill="#bbb"/>
+    </pattern>
+    <!-- Deck: top-left(90,55) top-right(570,55) bot-right(570,487) diagonal-end(234,487) diagonal-start(90,343) -->
+    <clipPath id="deckClip">
+      <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="700" height="580" fill="#f5f5f0"/>
+  <g opacity="0.18" clip-path="url(#deckClip)">
+    <rect x="90" y="55" width="480" height="432" fill="url(#dots)"/>
+  </g>
+
+  <!-- Deck outline: 20ft wide × 18ft tall, diagonal bottom-left -->
+  <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z" fill="#fafaf7" stroke="#3d3d3a" stroke-width="1.5"/>
+
+  <!-- Top edge — RAILING -->
+  <line x1="80" y1="55" x2="580" y2="55" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
+  <text class="deck-label" x="330" y="46" text-anchor="middle">railing</text>
+
+  <!-- Right edge — HOUSE WALL (18ft) -->
+  <line x1="570" y1="45" x2="570" y2="497" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
+  <text class="deck-label" x="586" y="274" text-anchor="start" font-size="9" fill="#999">house wall</text>
+
+  <!-- Doorway on bottom-right edge, next to stairs -->
+  <rect x="460" y="481" width="88" height="12" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.8"/>
+  <text class="dim-label" x="504" y="509" text-anchor="middle" font-size="9">doorway</text>
+
+  <!-- Stairs below deck -->
+  <rect x="478" y="495" width="96" height="72" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.45" rx="2"/>
+  <line x1="478" y1="510" x2="574" y2="510" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="525" x2="574" y2="525" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="540" x2="574" y2="540" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <line x1="478" y1="555" x2="574" y2="555" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
+  <text class="zone-label" x="526" y="523" text-anchor="middle" fill="#185fa5" font-size="10">stairs</text>
+  <text class="zone-label" x="526" y="538" text-anchor="middle" fill="#185fa5" font-size="9">DN ↓</text>
+
+  <!-- Railing dashed (left, bottom, and diagonal) -->
+  <path d="M 90 55 L 90 343 L 234 487 L 570 487" fill="none" stroke="#888" stroke-width="0.5" stroke-dasharray="8 4" opacity="0.35"/>
+  <text class="dim-label" x="152" y="428" transform="rotate(-45,152,428)" font-size="9" opacity="0.6">angled corner</text>
+
+  <!-- Dimensions: 20ft top -->
+  <line x1="90" y1="32" x2="570" y2="32" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="90" y1="28" x2="90" y2="36" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="570" y1="28" x2="570" y2="36" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="330" y="28">20'</text>
+
+  <!-- Dimensions: 18ft right (house wall) -->
+  <line x1="608" y1="55" x2="608" y2="487" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="604" y1="55" x2="612" y2="55" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="604" y1="487" x2="612" y2="487" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="612" y="275" transform="rotate(90,612,275)">18'</text>
+
+  <!-- Dimensions: left edge to diagonal start -->
+  <line x1="66" y1="55" x2="66" y2="343" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="62" y1="55" x2="70" y2="55" stroke="#bbb" stroke-width="0.5"/>
+  <line x1="62" y1="343" x2="70" y2="343" stroke="#bbb" stroke-width="0.5"/>
+  <text class="dim-label" x="62" y="202" transform="rotate(-90,62,202)">~12'</text>
+
+  <!-- Dimensions: bottom edge (diagonal end to right) -->
+  <text class="dim-label" x="402" y="482" text-anchor="middle" font-size="9" opacity="0.5">~14'</text>
+
+  <!-- Compass -->
+  <g transform="translate(660,40)">
+    <circle r="14" fill="none" stroke="#d3d1c7" stroke-width="0.5"/>
+    <text class="dim-label" x="-8" y="4" text-anchor="middle" font-size="10" font-weight="500" fill="#5f5e5a">N</text>
+    <line x1="-4" y1="0" x2="8" y2="0" stroke="#bbb" stroke-width="0.5"/>
+  </g>
+
+  <g id="furniture"></g>
+</svg>
+</div>
+
+<div class="type-menu" id="typeMenu"></div>
+
+<script>
+var PX=24,ICON_R=7.5;
+
+var CATEGORIES={
+  round_table:{label:'Round dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
+    {name:'36" round (2-seat)',wFt:3,hFt:3},{name:'42" round (4-seat)',wFt:3.5,hFt:3.5},
+    {name:'48" round (4-6)',wFt:4,hFt:4},{name:'60" round (6-8)',wFt:5,hFt:5}]},
+  rect_table:{label:'Rectangular dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
+    {name:'4-seat (3\' × 4\')',wFt:3,hFt:4},{name:'6-seat (3.5\' × 5\')',wFt:3.5,hFt:5},
+    {name:'8-seat (4\' × 6.5\')',wFt:4,hFt:6.5},{name:'10-seat (4\' × 8\')',wFt:4,hFt:8}]},
+  bistro_table:{label:'Bistro / pub tables',fill:'#D4B896',stroke:'#7A5C2E',textFill:'#4A3518',types:[
+    {name:'24" round bistro',wFt:2,hFt:2},{name:'30" round pub',wFt:2.5,hFt:2.5},
+    {name:'36" round high-top',wFt:3,hFt:3},{name:'24" square bistro',wFt:2,hFt:2}]},
+  bistro_stool:{label:'Bar stools / high chairs',fill:'#C9B99A',stroke:'#7A5C2E',textFill:'#4A3518',types:[
+    {name:'Round stool',wFt:1.25,hFt:1.25},{name:'Square stool',wFt:1.25,hFt:1.25},
+    {name:'Stool w/ back',wFt:1.5,hFt:1.5},{name:'Wide bar chair',wFt:1.75,hFt:1.75}]},
+  sofa:{label:'Sofas',fill:'#FAC775',stroke:'#854F0B',textFill:'#633806',types:[
+    {name:'Loveseat',wFt:5,hFt:2.5},{name:'3-seat sofa',wFt:7,hFt:3},
+    {name:'Bench',wFt:5,hFt:1.5},{name:'Daybed',wFt:6.5,hFt:3}]},
+  chair:{label:'Chairs',fill:'#C0DD97',stroke:'#3B6D11',textFill:'#27500A',types:[
+    {name:'Dining chair',wFt:1.5,hFt:1.5},{name:'Adirondack',wFt:2.5,hFt:3},
+    {name:'Folding chair',wFt:1.5,hFt:1.5},{name:'Rocking chair',wFt:2,hFt:3}]},
+  lounge:{label:'Lounge chairs',fill:'#F5C4B3',stroke:'#993C1D',textFill:'#712B13',types:[
+    {name:'Club chair',wFt:2.5,hFt:2.5},{name:'Chaise lounge',wFt:2.5,hFt:6},
+    {name:'Recliner',wFt:3,hFt:5},{name:'Papasan',wFt:3.5,hFt:3.5}]},
+  grill:{label:'Grills',fill:'#F7C1C1',stroke:'#A32D2D',textFill:'#791F1F',types:[
+    {name:'Portable',wFt:2,hFt:1.5},{name:'Standard grill',wFt:3,hFt:2},
+    {name:'Large grill',wFt:4,hFt:2},{name:'Grill island',wFt:5,hFt:2.5}]},
+  planter:{label:'Planters',fill:'#9FE1CB',stroke:'#0F6E56',textFill:'#085041',types:[
+    {name:'Small pot',wFt:1,hFt:1},{name:'Medium planter',wFt:2,hFt:2},
+    {name:'Long trough',wFt:4,hFt:1},{name:'Large square',wFt:3,hFt:3}]},
+  side_table:{label:'Side tables',fill:'#CECBF6',stroke:'#534AB7',textFill:'#3C3489',types:[
+    {name:'Small round',wFt:1.5,hFt:1.5},{name:'Medium square',wFt:2,hFt:2},
+    {name:'Console table',wFt:4,hFt:1.5},{name:'Coffee table',wFt:4,hFt:2}]},
+  umbrella:{label:'Umbrellas (shade area)',fill:'#ED93B1',stroke:'#993556',textFill:'#72243E',types:[
+    {name:'6 ft umbrella',wFt:6,hFt:6},{name:'8 ft umbrella',wFt:8,hFt:8},
+    {name:'10 ft umbrella',wFt:10,hFt:10},{name:'10 ft rect.',wFt:10,hFt:6.5}]}
+};
+
+var svg=document.getElementById('plan'),fg=document.getElementById('furniture');
+var typeMenu=document.getElementById('typeMenu');
+var dragEl=null,dragOff={x:0,y:0},activeMenuEl=null;
+
+function mk(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag)}
+
+function addItem(cat,subIdx,x,y,angle){
+  var c=CATEGORIES[cat],idx=subIdx||0,t=c.types[idx];
+  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
+  var px=x!==undefined?x:300,py=y!==undefined?y:220,rot=angle||0;
+  var g=mk('g');g.setAttribute('class','draggable');
+  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
+  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;g.dataset.rot=rot;
+  buildPiece(g,cat,idx);fg.appendChild(g);
+  g.addEventListener('pointerdown',startDrag);
+}
+
+function buildPiece(g,cat,idx){
+  var c=CATEGORIES[cat],t=c.types[idx];
+  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
+  var rot=parseFloat(g.dataset.rot)||0;
+  while(g.firstChild)g.removeChild(g.firstChild);
+  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;
+  var tr=g.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
+  var px=m?parseFloat(m[1]):300,py=m?parseFloat(m[2]):220;
+  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
+
+  var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
+  if(isRound){
+    var circ=mk('ellipse');circ.setAttribute('cx',w/2);circ.setAttribute('cy',h/2);
+    circ.setAttribute('rx',w/2);circ.setAttribute('ry',h/2);
+    circ.setAttribute('fill',c.fill);circ.setAttribute('stroke',c.stroke);
+    circ.setAttribute('stroke-width','1');g.appendChild(circ);
+  } else {
+    var r=mk('rect');r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
+    r.setAttribute('fill',c.fill);r.setAttribute('stroke',c.stroke);
+    r.setAttribute('stroke-width','1');g.appendChild(r);
+  }
+
+  var small=(w<48||h<48),fs=small?7:9;
+  var txt=mk('text');txt.setAttribute('x',w/2);txt.setAttribute('y',h/2-(small?3:5));
+  txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','central');
+  txt.setAttribute('font-size',fs);txt.setAttribute('font-family','-apple-system,Segoe UI,Helvetica,Arial,sans-serif');
+  txt.setAttribute('fill',c.textFill);txt.setAttribute('font-weight','500');
+  txt.setAttribute('pointer-events','none');txt.textContent=t.name;g.appendChild(txt);
+
+  var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
+  var sft=mk('text');sft.setAttribute('x',w/2);sft.setAttribute('y',h/2+(small?6:7));
+  sft.setAttribute('text-anchor','middle');sft.setAttribute('dominant-baseline','central');
+  sft.setAttribute('font-size','7');sft.setAttribute('font-family','SF Mono,Courier New,monospace');
+  sft.setAttribute('fill',c.textFill);sft.setAttribute('opacity','0.6');
+  sft.setAttribute('pointer-events','none');sft.textContent=sqft+' sq ft';g.appendChild(sft);
+
+  if(!small){
+    var dims=mk('text');dims.setAttribute('x',w/2);dims.setAttribute('y',h/2+16);
+    dims.setAttribute('text-anchor','middle');dims.setAttribute('dominant-baseline','central');
+    dims.setAttribute('font-size','7');dims.setAttribute('font-family','SF Mono,Courier New,monospace');
+    dims.setAttribute('fill',c.textFill);dims.setAttribute('opacity','0.45');
+    dims.setAttribute('pointer-events','none');dims.textContent=t.wFt+"' × "+t.hFt+"'";g.appendChild(dims);
+  }
+
+  // MENU (upper-left)
+  var mg=mk('g');mg.setAttribute('class','icon-btn');
+  mg.setAttribute('transform','translate('+(ICON_R+2)+','+(ICON_R+2)+')');
+  var mbg=mk('circle');mbg.setAttribute('r',ICON_R);mbg.setAttribute('fill','#444');mbg.setAttribute('opacity','0.8');mg.appendChild(mbg);
+  [-2.2,0,2.2].forEach(function(dy){var ml=mk('line');ml.setAttribute('x1','-3');ml.setAttribute('y1',dy);ml.setAttribute('x2','3');ml.setAttribute('y2',dy);ml.setAttribute('stroke','#fff');ml.setAttribute('stroke-width','1.2');ml.setAttribute('stroke-linecap','round');mg.appendChild(ml);});
+  mg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();openTypeMenu(g,cat,idx,e);});g.appendChild(mg);
+
+  // DELETE (upper-right)
+  var xg=mk('g');xg.setAttribute('class','icon-btn');
+  xg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(ICON_R+2)+')');
+  var xbg=mk('circle');xbg.setAttribute('r',ICON_R);xbg.setAttribute('fill','#a32d2d');xbg.setAttribute('opacity','0.8');xg.appendChild(xbg);
+  [[-3,-3,3,3],[3,-3,-3,3]].forEach(function(coords){var xl=mk('line');xl.setAttribute('x1',coords[0]);xl.setAttribute('y1',coords[1]);xl.setAttribute('x2',coords[2]);xl.setAttribute('y2',coords[3]);xl.setAttribute('stroke','#fff');xl.setAttribute('stroke-width','1.5');xl.setAttribute('stroke-linecap','round');xg.appendChild(xl);});
+  xg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();g.remove();closeMenu();});g.appendChild(xg);
+
+  // ROTATE 45° (bottom-right)
+  var rg=mk('g');rg.setAttribute('class','icon-btn');
+  rg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(h-ICON_R-2)+')');
+  var rbg=mk('circle');rbg.setAttribute('r',ICON_R);rbg.setAttribute('fill','#185fa5');rbg.setAttribute('opacity','0.8');rg.appendChild(rbg);
+  var arc=mk('path');arc.setAttribute('d','M3,-1 A4,4 0 1,0 1,3');arc.setAttribute('fill','none');arc.setAttribute('stroke','#fff');arc.setAttribute('stroke-width','1.4');arc.setAttribute('stroke-linecap','round');rg.appendChild(arc);
+  var ah=mk('path');ah.setAttribute('d','M3,-3.5 L3,0.5 L5.5,-0.5 Z');ah.setAttribute('fill','#fff');rg.appendChild(ah);
+  rg.addEventListener('click',function(e){
+    e.stopPropagation();e.preventDefault();closeMenu();
+    var curRot=(parseFloat(g.dataset.rot)||0)+45;if(curRot>=360)curRot-=360;
+    g.dataset.rot=curRot;buildPiece(g,g.dataset.cat,parseInt(g.dataset.subIdx));
+  });g.appendChild(rg);
+}
+
+function openTypeMenu(gEl,cat,currentIdx,evt){
+  closeMenu();activeMenuEl=gEl;var c=CATEGORIES[cat],mx=evt.clientX+12,my=evt.clientY-20;
+  var html='<div class="type-menu-title">'+c.label+'</div>';
+  var maxFt=0;c.types.forEach(function(t){maxFt=Math.max(maxFt,t.wFt,t.hFt)});var ps=40/maxFt;
+  c.types.forEach(function(t,i){
+    var pw=Math.max(8,Math.round(t.wFt*ps)),ph=Math.max(8,Math.round(t.hFt*ps));
+    var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
+    var active=(i===currentIdx)?' active':'';
+    var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
+    var br=isRound?';border-radius:50%':'';
+    html+='<div class="type-option'+active+'" onclick="selectType(\''+cat+'\','+i+')">';
+    html+='<div class="type-option-preview" style="width:'+pw+'px;height:'+ph+'px;background:'+c.fill+';border:1.5px solid '+c.stroke+br+'"></div>';
+    html+='<div class="type-option-info"><span class="type-option-name">'+t.name+'</span>';
+    html+='<span class="type-option-dims">'+t.wFt+"' × "+t.hFt+"' · "+sqft+' sq ft</span></div></div>';
+  });
+  typeMenu.innerHTML=html;
+  typeMenu.style.left=Math.min(mx,window.innerWidth-240)+'px';
+  typeMenu.style.top=Math.min(my,window.innerHeight-280)+'px';
+  typeMenu.classList.add('open');
+}
+function selectType(cat,idx){if(!activeMenuEl)return;buildPiece(activeMenuEl,cat,idx);closeMenu();}
+function closeMenu(){typeMenu.classList.remove('open');activeMenuEl=null;}
+document.addEventListener('click',function(e){if(!typeMenu.contains(e.target))closeMenu()});
+
+function clearAll(){fg.innerHTML='';closeMenu();placeGrill();}
+function placeGrill(){addItem('grill',1,145,305,-45);}
+
+function getPoint(e){var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+function startDrag(e){
+  if(e.target.closest('.icon-btn'))return;
+  e.preventDefault();closeMenu();dragEl=e.currentTarget;
+  var p=getPoint(e),tr=dragEl.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
+  dragOff.x=p.x-parseFloat(m[1]);dragOff.y=p.y-parseFloat(m[2]);
+  document.addEventListener('pointermove',onDrag);document.addEventListener('pointerup',endDrag);
+}
+function onDrag(e){
+  if(!dragEl)return;var p=getPoint(e);
+  var rot=dragEl.dataset.rot||0,w=dragEl.dataset.w||0,h=dragEl.dataset.h||0;
+  dragEl.setAttribute('transform','translate('+Math.round(p.x-dragOff.x)+','+Math.round(p.y-dragOff.y)+') rotate('+rot+','+(w/2)+','+(h/2)+')');
+}
+function endDrag(){dragEl=null;document.removeEventListener('pointermove',onDrag);document.removeEventListener('pointerup',endDrag);}
+
+placeGrill();
+</script>
+</body>
+</html>

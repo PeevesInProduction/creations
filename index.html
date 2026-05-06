@@ -3,314 +3,1674 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bodell Deck Floor Plan — 20' × 18'</title>
+<title>Hogwarts School of Homelab Sorcery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=MedievalSharp&family=UnifrakturMaguntia&family=Tangerine:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%;overflow:hidden}
-  body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:#f5f5f0;color:#3d3d3a;display:flex;flex-direction:column;height:100vh}
-  .header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#fff;border-bottom:1px solid #e8e7e3;flex-shrink:0}
-  .header-left h1{font-size:14px;font-weight:600;line-height:1.2}
-  .header-left span{font-size:11px;color:#888}
-  .header-right{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-  .furn-btn{font-size:12px;padding:5px 12px;border:1px solid #d3d1c7;border-radius:6px;background:#f8f7f4;color:#5f5e5a;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
-  .furn-btn:hover{background:#e6f1fb;color:#185fa5;border-color:#85b7eb}
-  .furn-btn:active{transform:scale(.97)}
-  .clear-btn{font-size:12px;padding:5px 12px;border:1px solid #f09595;border-radius:6px;background:#fcebeb;color:#a32d2d;cursor:pointer;user-select:none;transition:all .12s;white-space:nowrap}
-  .clear-btn:hover{background:#f7c1c1}
-  .canvas-area{flex:1;position:relative;overflow:hidden;min-height:0}
-  .canvas-area svg{display:block;width:100%;height:100%}
-  .dim-label{font-family:'SF Mono','Courier New',monospace;font-size:10px;fill:#999}
-  .zone-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;font-weight:500;fill:#999}
-  .deck-label{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:10px;fill:#999}
-  .draggable{cursor:grab}.draggable:active{cursor:grabbing}
-  .icon-btn{cursor:pointer;opacity:.6;transition:opacity .15s}.icon-btn:hover{opacity:1}
-  .type-menu{position:fixed;z-index:200;background:#fff;border:1px solid #d3d1c7;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:10px;display:none;min-width:210px}
-  .type-menu.open{display:block}
-  .type-menu-title{font-size:11px;font-weight:600;color:#888;padding:4px 8px 8px;border-bottom:1px solid #eee;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-  .type-option{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
-  .type-option:hover{background:#f0f0ec}.type-option.active{background:#e6f1fb}
-  .type-option-preview{flex-shrink:0;border-radius:3px}
-  .type-option-info{display:flex;flex-direction:column}
-  .type-option-name{font-size:13px;font-weight:500;color:#3d3d3a}
-  .type-option-dims{font-size:11px;color:#999;font-family:'SF Mono','Courier New',monospace}
+/* ═══════════════════════════════════════════
+   HOGWARTS SCHOOL OF HOMELAB SORCERY
+   House colour system:
+   Gryffindor  = IoT / Smart Home
+   Slytherin   = Network / Security
+   Ravenclaw   = AI / LLM
+   Hufflepuff  = Game Development
+   ═══════════════════════════════════════════ */
+:root {
+  /* Night castle palette */
+  --void:        #08060f;
+  --stone:       #130f1c;
+  --dungeon:     #0e0d14;
+  --parchment:   #f2e8c9;
+  --parch-aged:  #dfd0a0;
+  --parch-dark:  #c9b47a;
+  --ink:         #1a0e06;
+  --ink-faded:   #3a2515;
+  --candle:      #f4c84a;
+  --candle-glow: rgba(244,200,74,0.18);
+  --torch:       #e07820;
+  --moonlight:   #c8d8f0;
+  --starlight:   #e8f0ff;
+  --ghost:       rgba(200,220,255,0.7);
+
+  /* House colours */
+  --gryff-scarlet: #8b0000;
+  --gryff-gold:    #d4a017;
+  --gryff-glow:    rgba(139,0,0,0.15);
+
+  --slyth-green:   #1a4a2e;
+  --slyth-silver:  #8a9a8a;
+  --slyth-glow:    rgba(26,74,46,0.18);
+
+  --raven-blue:    #1c2b6e;
+  --raven-bronze:  #8a5c28;
+  --raven-glow:    rgba(28,43,110,0.2);
+
+  --huffl-yellow:  #c49a00;
+  --huffl-black:   #2a2218;
+  --huffl-glow:    rgba(196,154,0,0.15);
+
+  --font-title:  'Cinzel Decorative', 'Cinzel', serif;
+  --font-head:   'Cinzel', serif;
+  --font-body:   'Cormorant Garamond', 'IM Fell English', Georgia, serif;
+  --font-script: 'Tangerine', cursive;
+  --font-sc:     'IM Fell English SC', serif;
+  --font-gothic: 'UnifrakturMaguntia', cursive;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--moonlight);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── Night sky background ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 15%, rgba(139,0,0,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 80% 70%, rgba(28,43,110,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 30% at 50% 95%, rgba(26,74,46,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 25% at 90% 5%, rgba(196,154,0,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Stars */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 7%  9%,  rgba(232,240,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 18% 28%, rgba(232,240,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 32% 72%, rgba(244,200,74,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 12%, rgba(232,240,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 58% 55%, rgba(232,240,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 71% 38%, rgba(200,220,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 84% 82%, rgba(232,240,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 93% 22%, rgba(232,240,255,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 26% 91%, rgba(244,200,74,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 67% 7%,  rgba(232,240,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 12% 64%, rgba(232,240,255,0.3) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 89% 51%, rgba(200,220,255,0.5) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+  animation: twinkle 8s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* ── Candle flicker ─── */
+@keyframes flicker {
+  0%,100% { opacity: 1; text-shadow: 0 0 20px var(--candle), 0 0 40px rgba(244,200,74,0.4); }
+  25%     { opacity: 0.9; text-shadow: 0 0 14px var(--candle), 0 0 28px rgba(244,200,74,0.3); }
+  75%     { opacity: 0.95; text-shadow: 0 0 24px var(--candle), 0 0 48px rgba(244,200,74,0.5); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px currentColor; }
+  50%       { box-shadow: 0 0 40px currentColor, 0 0 80px currentColor; }
+}
+
+/* ── Layout ─── */
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* ── Scroll bar ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gryff-gold); border-radius: 3px; }
+
+/* ══════════════════
+   NAVIGATION
+   ══════════════════ */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(8,6,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212,160,23,0.2);
+  padding: 0 32px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  font-family: var(--font-sc);
+  font-size: 13px;
+  color: var(--candle);
+  letter-spacing: 0.15em;
+  animation: flicker 4s ease-in-out infinite;
+}
+
+.nav-houses {
+  display: flex;
+  gap: 6px;
+}
+
+.nav-house {
+  font-family: var(--font-sc);
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 2px;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  transition: all 0.2s;
+}
+
+.nh-g { color: var(--gryff-gold);   background: rgba(139,0,0,0.2);   border: 1px solid rgba(139,0,0,0.4); }
+.nh-s { color: var(--slyth-silver); background: rgba(26,74,46,0.2);  border: 1px solid rgba(26,74,46,0.4); }
+.nh-r { color: #7090d0;             background: rgba(28,43,110,0.2); border: 1px solid rgba(28,43,110,0.4); }
+.nh-h { color: var(--huffl-yellow); background: rgba(196,154,0,0.15);border: 1px solid rgba(196,154,0,0.3); }
+
+.nav-house:hover { opacity: 0.85; }
+
+/* Progress candles */
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 300;
+  background: transparent;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gryff-scarlet), var(--gryff-gold), var(--raven-blue), var(--slyth-green));
+  transition: width 0.1s;
+}
+
+/* ══════════════════
+   HERO — Great Hall
+   ══════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.crest-ring {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(212,160,23,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 32px;
+  font-size: 60px;
+  animation: float 6s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(212,160,23,0.1), inset 0 0 40px rgba(212,160,23,0.05);
+}
+
+.hero-scroll {
+  font-family: var(--font-sc);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: rgba(212,160,23,0.6);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-family: var(--font-title);
+  font-size: clamp(28px, 5vw, 58px);
+  color: var(--candle);
+  line-height: 1.1;
+  margin-bottom: 10px;
+  animation: flicker 5s ease-in-out infinite;
+}
+
+.hero-subtitle {
+  font-family: var(--font-script);
+  font-size: clamp(28px, 4vw, 48px);
+  color: var(--parch-aged);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.hero-motto {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--slyth-silver);
+  margin-bottom: 48px;
+  max-width: 500px;
+}
+
+.house-crests {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+
+.house-crest {
+  width: 80px;
+  padding: 14px 10px 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 28px;
+  transition: transform 0.3s;
+}
+
+.house-crest:hover { transform: scale(1.1) translateY(-4px); }
+
+.hc-g { background: rgba(139,0,0,0.15);    border: 1px solid rgba(212,160,23,0.3); }
+.hc-s { background: rgba(26,74,46,0.15);   border: 1px solid rgba(138,154,138,0.3); }
+.hc-r { background: rgba(28,43,110,0.15);  border: 1px solid rgba(112,144,208,0.3); }
+.hc-h { background: rgba(196,154,0,0.12);  border: 1px solid rgba(196,154,0,0.3); }
+
+.hc-name { font-family: var(--font-sc); font-size: 8px; letter-spacing: 0.1em; margin-top: 6px; }
+.hc-g .hc-name { color: var(--gryff-gold); }
+.hc-s .hc-name { color: var(--slyth-silver); }
+.hc-r .hc-name { color: #7090d0; }
+.hc-h .hc-name { color: var(--huffl-yellow); }
+
+.hero-grimoire {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: rgba(212,160,23,0.15);
+  border: 1px solid rgba(212,160,23,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 760px;
+  width: 100%;
+}
+
+.grimoire-entry {
+  background: var(--dungeon);
+  padding: 14px 18px;
+}
+
+.ge-label {
+  font-family: var(--font-sc);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(212,160,23,0.5);
+  margin-bottom: 4px;
+}
+
+.ge-value {
+  font-family: var(--font-sc);
+  font-size: 12px;
+  color: var(--moonlight);
+}
+
+/* ══════════════════
+   CHAPTER / SECTION
+   ══════════════════ */
+section { padding: 80px 0 0; position: relative; z-index: 1; }
+
+.chapter-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(212,160,23,0.12);
+}
+
+/* House-coloured chapter markers */
+.chapter-mark {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.cm-g { background: var(--gryff-glow); border: 1px solid rgba(212,160,23,0.3); box-shadow: 0 0 20px rgba(139,0,0,0.2); }
+.cm-s { background: var(--slyth-glow); border: 1px solid rgba(138,154,138,0.25); box-shadow: 0 0 20px rgba(26,74,46,0.2); }
+.cm-r { background: var(--raven-glow); border: 1px solid rgba(112,144,208,0.3); box-shadow: 0 0 20px rgba(28,43,110,0.2); }
+.cm-h { background: var(--huffl-glow); border: 1px solid rgba(196,154,0,0.25); box-shadow: 0 0 20px rgba(196,154,0,0.15); }
+.cm-n { background: rgba(30,25,40,0.8); border: 1px solid rgba(212,160,23,0.15); }
+
+.chapter-text h2 {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--candle);
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.chapter-text .chapter-roman {
+  font-family: var(--font-sc);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(212,160,23,0.4);
+  margin-bottom: 6px;
+}
+
+.chapter-text p {
+  font-size: 15px;
+  color: var(--slyth-silver);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ══════════════════
+   PARCHMENT CARDS
+   ══════════════════ */
+.scroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 24px 0; }
+.scroll-grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 24px 0; }
+
+.scroll {
+  background: linear-gradient(135deg, #1a1420 0%, #120f1c 100%);
+  border-radius: 4px;
+  padding: 22px;
+  border: 1px solid rgba(212,160,23,0.12);
+  border-left: 3px solid rgba(212,160,23,0.12);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.scroll:hover { border-color: rgba(212,160,23,0.3); background: #1e1828; }
+
+/* House-coloured scroll borders */
+.sc-g  { border-left-color: var(--gryff-scarlet); }
+.sc-g:hover { box-shadow: -4px 0 16px rgba(139,0,0,0.3); }
+.sc-s  { border-left-color: var(--slyth-green); }
+.sc-s:hover { box-shadow: -4px 0 16px rgba(26,74,46,0.3); }
+.sc-r  { border-left-color: var(--raven-blue); }
+.sc-r:hover { box-shadow: -4px 0 16px rgba(28,43,110,0.3); }
+.sc-h  { border-left-color: var(--huffl-yellow); }
+.sc-h:hover { box-shadow: -4px 0 16px rgba(196,154,0,0.3); }
+.sc-gold { border-left-color: var(--gryff-gold); }
+
+.scroll-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+.scroll-title { font-family: var(--font-head); font-size: 15px; color: var(--candle); margin-bottom: 6px; letter-spacing: 0.03em; }
+.scroll-body { font-size: 13px; color: var(--slyth-silver); line-height: 1.55; font-weight: 300; }
+.scroll-rune { font-family: var(--font-sc); font-size: 9px; color: rgba(212,160,23,0.4); margin-top: 10px; letter-spacing: 0.1em; }
+
+/* ══════════════════
+   SPELL BOOKS (code)
+   ══════════════════ */
+.spellbook {
+  background: #0a0810;
+  border: 1px solid rgba(212,160,23,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 14px 0;
+}
+
+.spellbook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(212,160,23,0.06);
+  border-bottom: 1px solid rgba(212,160,23,0.1);
+}
+
+.spell-name {
+  font-family: var(--font-sc);
+  font-size: 9px;
+  color: var(--candle);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.incant-btn {
+  font-family: var(--font-sc);
+  font-size: 9px;
+  color: rgba(212,160,23,0.5);
+  background: none;
+  border: 1px solid rgba(212,160,23,0.2);
+  border-radius: 2px;
+  padding: 2px 10px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all 0.15s;
+}
+
+.incant-btn:hover { color: var(--candle); border-color: rgba(212,160,23,0.5); }
+.incant-btn.cast { color: #7ad88a; border-color: #7ad88a; }
+
+pre {
+  padding: 18px 20px;
+  overflow-x: auto;
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--moonlight);
+}
+
+/* Syntax colours — house tinted */
+.sg { color: #c8d8a8; }  /* Gryffindor gold strings */
+.sr { color: #c86060; }  /* scarlet keywords */
+.sb { color: #7090d0; }  /* Ravenclaw blue variables */
+.ss { color: #70a880; }  /* Slytherin green comments */
+.sh { color: var(--huffl-yellow); }  /* Hufflepuff yellow numbers */
+.sd { color: #5a5070; }  /* dim */
+
+/* ══════════════════
+   ALERTS / NOTICES
+   ══════════════════ */
+.notice {
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 3px;
+  margin: 18px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.notice-icon { font-size: 18px; flex-shrink: 0; }
+.n-g  { background: rgba(139,0,0,0.08);  border-left: 3px solid var(--gryff-scarlet); }
+.n-s  { background: rgba(26,74,46,0.08); border-left: 3px solid var(--slyth-green); }
+.n-r  { background: rgba(28,43,110,0.1); border-left: 3px solid var(--raven-blue); }
+.n-h  { background: rgba(196,154,0,0.07);border-left: 3px solid var(--huffl-yellow); }
+.n-gold { background: rgba(212,160,23,0.07); border-left: 3px solid var(--gryff-gold); }
+
+.notice strong { font-style: normal; color: var(--candle); font-family: var(--font-sc); letter-spacing: 0.05em; }
+
+/* ══════════════════
+   INCANTATION STEPS
+   ══════════════════ */
+.incantations { display: flex; flex-direction: column; margin: 24px 0; }
+
+.incant-step {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 0 18px;
+  position: relative;
+}
+
+.incant-step:not(:last-child) .is-line {
+  position: absolute;
+  left: 23px;
+  top: 46px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(212,160,23,0.1);
+}
+
+.is-orb {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sc);
+  font-size: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.io-g { background: var(--gryff-glow); border: 1px solid rgba(212,160,23,0.3); color: var(--gryff-gold); }
+.io-s { background: var(--slyth-glow); border: 1px solid rgba(138,154,138,0.3); color: var(--slyth-silver); }
+.io-r { background: var(--raven-glow); border: 1px solid rgba(112,144,208,0.3); color: #7090d0; }
+.io-h { background: var(--huffl-glow); border: 1px solid rgba(196,154,0,0.3); color: var(--huffl-yellow); }
+.io-n { background: rgba(30,24,40,0.9); border: 1px solid rgba(212,160,23,0.2); color: var(--candle); }
+
+.is-body { padding-bottom: 32px; }
+.is-body h3 { font-family: var(--font-head); font-size: 16px; color: var(--candle); padding-top: 8px; margin-bottom: 6px; letter-spacing: 0.03em; }
+.is-body p { font-size: 14px; color: var(--slyth-silver); margin-bottom: 10px; font-weight: 300; }
+
+/* ══════════════════
+   TABLES (Grimoire)
+   ══════════════════ */
+.grimoire-wrap { overflow-x: auto; margin: 18px 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+th {
+  font-family: var(--font-sc);
+  font-size: 9px;
+  color: rgba(212,160,23,0.5);
+  letter-spacing: 0.2em;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(212,160,23,0.12);
+  background: rgba(212,160,23,0.04);
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(30,25,50,0.8);
+  font-family: var(--font-sc);
+  font-size: 12px;
+  color: var(--moonlight);
+}
+
+tr:hover td { background: rgba(212,160,23,0.03); }
+
+/* ══════════════════
+   BADGES / SEALS
+   ══════════════════ */
+.seal {
+  display: inline-block;
+  font-family: var(--font-sc);
+  font-size: 9px;
+  padding: 3px 9px;
+  border-radius: 2px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.s-g { background: rgba(139,0,0,0.15);    color: var(--gryff-gold);   border: 1px solid rgba(212,160,23,0.2); }
+.s-s { background: rgba(26,74,46,0.15);   color: var(--slyth-silver); border: 1px solid rgba(138,154,138,0.2); }
+.s-r { background: rgba(28,43,110,0.15);  color: #7090d0;             border: 1px solid rgba(112,144,208,0.2); }
+.s-h { background: rgba(196,154,0,0.12);  color: var(--huffl-yellow); border: 1px solid rgba(196,154,0,0.2); }
+.s-n { background: rgba(30,25,45,0.8);    color: var(--slyth-silver); border: 1px solid rgba(212,160,23,0.15); }
+
+/* ══════════════════
+   TIMELINE (Prophecy)
+   ══════════════════ */
+.prophecy { display: flex; flex-direction: column; gap: 2px; margin: 24px 0; }
+
+.prophecy-item {
+  background: #120f1c;
+  border: 1px solid rgba(212,160,23,0.1);
+  border-radius: 3px;
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 0 24px;
+  align-items: start;
+}
+
+.prophecy-phase {
+  font-family: var(--font-sc);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+
+.prophecy-head { font-family: var(--font-head); font-size: 14px; color: var(--candle); margin-bottom: 4px; letter-spacing: 0.02em; }
+.prophecy-body { font-size: 13px; color: var(--slyth-silver); font-style: italic; line-height: 1.5; font-weight: 300; }
+
+/* ══════════════════
+   VLAN HOUSE MAP
+   ══════════════════ */
+.vlan-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(212,160,23,0.07);
+}
+
+.vlan-id { font-family: var(--font-sc); font-size: 11px; width: 70px; flex-shrink: 0; }
+.vlan-stripe { height: 3px; width: 70px; border-radius: 2px; flex-shrink: 0; }
+.vlan-name { font-family: var(--font-head); font-size: 13px; color: var(--candle); width: 160px; }
+.vlan-desc { font-size: 13px; color: var(--slyth-silver); font-style: italic; font-weight: 300; }
+
+/* ══════════════════
+   LINK GRID
+   ══════════════════ */
+.tome-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin: 14px 0; }
+
+.tome-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #100d18;
+  border: 1px solid rgba(212,160,23,0.1);
+  border-radius: 3px;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.tome-link:hover { border-color: rgba(212,160,23,0.3); background: #15111f; text-decoration: none; }
+.tome-icon { font-size: 16px; }
+.tome-title { font-family: var(--font-sc); font-size: 11px; color: var(--moonlight); display: block; }
+.tome-sub { font-size: 10px; color: var(--slyth-silver); font-style: italic; }
+.tome-arr { font-family: var(--font-sc); font-size: 10px; color: rgba(212,160,23,0.3); margin-left: auto; }
+
+/* ══════════════════
+   DIVIDER (torch)
+   ══════════════════ */
+.torch-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 36px 0;
+  color: rgba(212,160,23,0.25);
+  font-family: var(--font-sc);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.torch-divider::before, .torch-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.2), transparent);
+}
+
+/* ══════════════════
+   TERMINAL (Scrying)
+   ══════════════════ */
+.crystal {
+  background: #08060f;
+  border: 1px solid rgba(112,144,208,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 18px 0;
+  box-shadow: 0 0 30px rgba(28,43,110,0.2), inset 0 0 30px rgba(28,43,110,0.05);
+}
+
+.crystal-rim {
+  background: rgba(28,43,110,0.15);
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(112,144,208,0.15);
+}
+
+.c-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cd-r { background: #7a1a1a; }
+.cd-g { background: #2a5a2a; }
+.cd-b { background: #1a2a5a; }
+
+.crystal-title { font-family: var(--font-sc); font-size: 10px; color: rgba(112,144,208,0.5); margin: 0 auto; letter-spacing: 0.1em; }
+
+.crystal-body { padding: 18px 20px; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.9; }
+.ct-prompt { color: #7090d0; }
+.ct-host { color: #70a880; }
+.ct-cmd { color: var(--moonlight); }
+.ct-out { color: #3a4060; }
+.ct-ok { color: #7ad88a; }
+.ct-info { color: var(--candle); }
+.ct-warn { color: #e07820; }
+
+/* ══════════════════
+   FOOTER
+   ══════════════════ */
+.footer {
+  margin-top: 100px;
+  padding: 48px 32px 40px;
+  border-top: 1px solid rgba(212,160,23,0.12);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-seal { font-size: 48px; margin-bottom: 16px; animation: float 8s ease-in-out infinite; display: block; }
+.footer-title { font-family: var(--font-title); font-size: 20px; color: var(--candle); margin-bottom: 6px; animation: flicker 6s ease-in-out infinite; }
+.footer-sub { font-family: var(--font-sc); font-size: 9px; color: rgba(212,160,23,0.3); letter-spacing: 0.2em; }
+.footer-motto { font-family: var(--font-script); font-size: 28px; color: rgba(212,160,23,0.4); margin-top: 16px; }
+
+@media (max-width: 768px) {
+  .nav-houses { display: none; }
+  .prophecy-item { grid-template-columns: 1fr; gap: 6px; }
+  .hero h1 { font-size: 28px; }
+  .house-crests { gap: 10px; }
+  .house-crest { width: 66px; font-size: 24px; }
+}
 </style>
 </head>
 <body>
+<div class="progress"><div class="progress-fill" id="prog"></div></div>
 
-<div class="header">
-  <div class="header-left">
-    <h1>Bodell residence deck</h1>
-    <span>Waterbury, VT · 20' × 18'</span>
+<nav class="nav">
+  <div class="nav-brand">⚡ Hogwarts Homelab</div>
+  <div class="nav-houses">
+    <a href="#gryffindor" class="nav-house nh-g">🦁 Gryffindor</a>
+    <a href="#slytherin"  class="nav-house nh-s">🐍 Slytherin</a>
+    <a href="#ravenclaw"  class="nav-house nh-r">🦅 Ravenclaw</a>
+    <a href="#hufflepuff" class="nav-house nh-h">🦡 Hufflepuff</a>
+    <a href="#marauders"  class="nav-house" style="color:var(--candle);border:1px solid rgba(212,160,23,0.3);background:rgba(212,160,23,0.06)">🗺 Map</a>
   </div>
-  <div class="header-right">
-    <button class="furn-btn" onclick="addItem('round_table')">Round table</button>
-    <button class="furn-btn" onclick="addItem('rect_table')">Rect. table</button>
-    <button class="furn-btn" onclick="addItem('bistro_table')">Bistro table</button>
-    <button class="furn-btn" onclick="addItem('bistro_stool')">Bistro stool</button>
-    <button class="furn-btn" onclick="addItem('sofa')">Sofa</button>
-    <button class="furn-btn" onclick="addItem('chair')">Chair</button>
-    <button class="furn-btn" onclick="addItem('lounge')">Lounge</button>
-    <button class="furn-btn" onclick="addItem('grill')">Grill</button>
-    <button class="furn-btn" onclick="addItem('planter')">Planter</button>
-    <button class="furn-btn" onclick="addItem('side_table')">Side table</button>
-    <button class="furn-btn" onclick="addItem('umbrella')">Umbrella</button>
-    <button class="clear-btn" onclick="clearAll()">Clear all</button>
+</nav>
+
+<!-- ═══════════════════ GREAT HALL ═══════════════════ -->
+<div class="hero">
+  <div class="crest-ring">⚡</div>
+  <div class="hero-scroll">Established Anno Domini 2026 · Private Correspondence Only</div>
+  <h1>Hogwarts School<br>of Homelab Sorcery</h1>
+  <p class="hero-subtitle">Where Ancient Magic Meets Modern Computing</p>
+  <p class="hero-motto">"Whether you've come here by letter, by Floo powder, or by SSH key — welcome. Your servers await."</p>
+
+  <div class="house-crests">
+    <div class="house-crest hc-g">🦁<div class="hc-name">Gryffindor<br>IoT</div></div>
+    <div class="house-crest hc-s">🐍<div class="hc-name">Slytherin<br>Network</div></div>
+    <div class="house-crest hc-r">🦅<div class="hc-name">Ravenclaw<br>AI · LLM</div></div>
+    <div class="house-crest hc-h">🦡<div class="hc-name">Hufflepuff<br>Game Dev</div></div>
+  </div>
+
+  <div class="hero-grimoire">
+    <div class="grimoire-entry"><div class="ge-label">Primary Cauldron</div><div class="ge-value">Dell R620 · 512 GB · 40 cores</div></div>
+    <div class="grimoire-entry"><div class="ge-label">Secondary Cauldron</div><div class="ge-value">Dell T7610 · 128 GB · 16 cores</div></div>
+    <div class="grimoire-entry"><div class="ge-label">Crystal Balls</div><div class="ge-value">3 × Raspberry Pi</div></div>
+    <div class="grimoire-entry"><div class="ge-label">Enchantments</div><div class="ge-value">Proxmox VE 9 · Terraform</div></div>
+    <div class="grimoire-entry"><div class="ge-label">Ancient Network</div><div class="ge-value">UniFi · 6 VLANs</div></div>
+    <div class="grimoire-entry"><div class="ge-label">Familiar Beasts</div><div class="ge-value">Llama 3.3 · 70B–405B</div></div>
   </div>
 </div>
 
-<div class="canvas-area">
-<!-- viewBox: 20ft wide=480px + margins, 18ft tall=432px + margins -->
-<svg id="plan" viewBox="0 0 700 580" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-      <path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/>
-    </marker>
-    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
-      <circle cx="12" cy="12" r="0.8" fill="#bbb"/>
-    </pattern>
-    <!-- Deck: top-left(90,55) top-right(570,55) bot-right(570,487) diagonal-end(234,487) diagonal-start(90,343) -->
-    <clipPath id="deckClip">
-      <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z"/>
-    </clipPath>
-  </defs>
+<div class="wrap">
 
-  <rect width="700" height="580" fill="#f5f5f0"/>
-  <g opacity="0.18" clip-path="url(#deckClip)">
-    <rect x="90" y="55" width="480" height="432" fill="url(#dots)"/>
-  </g>
+<!-- ═══════════════════════════════════════
+     THE MARAUDER'S MAP — Network Topology
+     ═══════════════════════════════════════ -->
+<section id="marauders">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-n">🗺</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">I Solemnly Swear That I Am Up To No Good</div>
+      <h2>The Marauder's Map</h2>
+      <p>Complete topology of Hogwarts Homelab — every tower, dungeon, and secret passage revealed.</p>
+    </div>
+  </div>
 
-  <!-- Deck outline: 20ft wide × 18ft tall, diagonal bottom-left -->
-  <path d="M 90 55 L 570 55 L 570 487 L 234 487 L 90 343 Z" fill="#fafaf7" stroke="#3d3d3a" stroke-width="1.5"/>
+  <div style="background:#08060f;border:1px solid rgba(212,160,23,0.2);border-radius:6px;padding:32px;overflow-x:auto;">
+    <svg width="980" height="600" viewBox="0 0 980 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-gold">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-blue">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <marker id="marr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#3a3020" opacity="0.6"/>
+        </marker>
+        <marker id="marr-gold" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#d4a017"/>
+        </marker>
+        <marker id="marr-g" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#8b0000"/>
+        </marker>
+        <marker id="marr-r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#1c2b6e"/>
+        </marker>
+      </defs>
 
-  <!-- Top edge — RAILING -->
-  <line x1="80" y1="55" x2="580" y2="55" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
-  <text class="deck-label" x="330" y="46" text-anchor="middle">railing</text>
+      <!-- Map background texture lines -->
+      <g opacity="0.04" stroke="#d4a017" stroke-width="0.5">
+        <line x1="0" y1="50"  x2="980" y2="50"/>
+        <line x1="0" y1="150" x2="980" y2="150"/>
+        <line x1="0" y1="300" x2="980" y2="300"/>
+        <line x1="0" y1="450" x2="980" y2="450"/>
+        <line x1="0" y1="550" x2="980" y2="550"/>
+        <line x1="100" y1="0" x2="100" y2="600"/>
+        <line x1="300" y1="0" x2="300" y2="600"/>
+        <line x1="500" y1="0" x2="500" y2="600"/>
+        <line x1="700" y1="0" x2="700" y2="600"/>
+        <line x1="880" y1="0" x2="880" y2="600"/>
+      </g>
 
-  <!-- Right edge — HOUSE WALL (18ft) -->
-  <line x1="570" y1="45" x2="570" y2="497" stroke="#3d3d3a" stroke-width="3.5" opacity="0.35"/>
-  <text class="deck-label" x="586" y="274" text-anchor="start" font-size="9" fill="#999">house wall</text>
+      <!-- Map title -->
+      <text x="490" y="22" text-anchor="middle" font-family="Cinzel" font-size="11" fill="#d4a017" letter-spacing="4" filter="url(#glow-gold)" opacity="0.8">THE MARAUDER'S MAP OF HOGWARTS HOMELAB</text>
 
-  <!-- Doorway on bottom-right edge, next to stairs -->
-  <rect x="460" y="481" width="88" height="12" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.8"/>
-  <text class="dim-label" x="504" y="509" text-anchor="middle" font-size="9">doorway</text>
+      <!-- ── THE OWLERY (Internet/ISP) ── -->
+      <rect x="380" y="36" width="220" height="40" rx="2" fill="#100a18" stroke="#5a4010" stroke-width="0.8"/>
+      <text x="490" y="53" text-anchor="middle" font-family="Cinzel" font-size="9" fill="#8a6020" letter-spacing="2">THE OWLERY · INTERNET</text>
+      <text x="490" y="67" text-anchor="middle" font-family="Cinzel" font-size="7" fill="#5a4010">Owl post · ISP uplink · Tailscale VPN</text>
 
-  <!-- Stairs below deck -->
-  <rect x="478" y="495" width="96" height="72" fill="#B5D4F4" stroke="#185FA5" stroke-width="1" opacity="0.45" rx="2"/>
-  <line x1="478" y1="510" x2="574" y2="510" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
-  <line x1="478" y1="525" x2="574" y2="525" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
-  <line x1="478" y1="540" x2="574" y2="540" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
-  <line x1="478" y1="555" x2="574" y2="555" stroke="#185FA5" stroke-width="0.5" opacity="0.4"/>
-  <text class="zone-label" x="526" y="523" text-anchor="middle" fill="#185fa5" font-size="10">stairs</text>
-  <text class="zone-label" x="526" y="538" text-anchor="middle" fill="#185fa5" font-size="9">DN ↓</text>
+      <!-- ── GATE / UDM PRO ── -->
+      <rect x="360" y="98" width="260" height="50" rx="2" fill="#0e1a12" stroke="#1a4a2e" stroke-width="1.5"/>
+      <rect x="360" y="98" width="260" height="4" rx="2" fill="#1a4a2e"/>
+      <text x="490" y="116" text-anchor="middle" font-family="Cinzel" font-size="9" fill="#8a9a8a" letter-spacing="2">THE GREAT GATES · UNIFI UDM PRO</text>
+      <text x="490" y="130" text-anchor="middle" font-family="Cinzel" font-size="7" fill="#4a6a4a">Drawbridge · Firewall · VLAN Portcullis · 192.168.1.1</text>
+      <line x1="490" y1="76" x2="490" y2="98" stroke="#3a3020" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#marr)"/>
 
-  <!-- Railing dashed (left, bottom, and diagonal) -->
-  <path d="M 90 55 L 90 343 L 234 487 L 570 487" fill="none" stroke="#888" stroke-width="0.5" stroke-dasharray="8 4" opacity="0.35"/>
-  <text class="dim-label" x="152" y="428" transform="rotate(-45,152,428)" font-size="9" opacity="0.6">angled corner</text>
+      <!-- ── POE SWITCH ── -->
+      <rect x="360" y="170" width="260" height="38" rx="2" fill="#100a18" stroke="#3a3020" stroke-width="0.8"/>
+      <text x="490" y="185" text-anchor="middle" font-family="Cinzel" font-size="8" fill="#6a5828">THE CORRIDORS · POE SWITCH</text>
+      <text x="490" y="198" text-anchor="middle" font-family="Cinzel" font-size="7" fill="#3a3020">All passages meet here · 8-port PoE · Powers Pis</text>
+      <line x1="490" y1="148" x2="490" y2="170" stroke="#1a4a2e" stroke-width="1" marker-end="url(#marr)"/>
 
-  <!-- Dimensions: 20ft top -->
-  <line x1="90" y1="32" x2="570" y2="32" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="90" y1="28" x2="90" y2="36" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="570" y1="28" x2="570" y2="36" stroke="#bbb" stroke-width="0.5"/>
-  <text class="dim-label" x="330" y="28">20'</text>
+      <!-- Orbi -->
+      <rect x="650" y="170" width="170" height="38" rx="2" fill="#100a18" stroke="#3a3020" stroke-width="0.8"/>
+      <text x="735" y="185" text-anchor="middle" font-family="Cinzel" font-size="8" fill="#5a5028">ENCHANTED PAINTINGS</text>
+      <text x="735" y="198" text-anchor="middle" font-family="Cinzel" font-size="7" fill="#3a3020">Orbi RBR750 + 2 satellites · WiFi mesh</text>
+      <line x1="620" y1="189" x2="650" y2="189" stroke="#3a3020" stroke-width="0.8"/>
 
-  <!-- Dimensions: 18ft right (house wall) -->
-  <line x1="608" y1="55" x2="608" y2="487" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="604" y1="55" x2="612" y2="55" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="604" y1="487" x2="612" y2="487" stroke="#bbb" stroke-width="0.5"/>
-  <text class="dim-label" x="612" y="275" transform="rotate(90,612,275)">18'</text>
+      <!-- UPS -->
+      <rect x="160" y="170" width="185" height="38" rx="2" fill="#1a1408" stroke="#c49a00" stroke-width="0.8"/>
+      <text x="252" y="185" text-anchor="middle" font-family="Cinzel" font-size="8" fill="#c49a00">PHILOSOPHER'S STONE</text>
+      <text x="252" y="198" text-anchor="middle" font-family="Cinzel" font-size="7" fill="#6a5010">CyberPower UPS 1500VA</text>
 
-  <!-- Dimensions: left edge to diagonal start -->
-  <line x1="66" y1="55" x2="66" y2="343" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="62" y1="55" x2="70" y2="55" stroke="#bbb" stroke-width="0.5"/>
-  <line x1="62" y1="343" x2="70" y2="343" stroke="#bbb" stroke-width="0.5"/>
-  <text class="dim-label" x="62" y="202" transform="rotate(-90,62,202)">~12'</text>
+      <!-- ── GRYFFINDOR TOWER (IoT / Smart Home) ── -->
+      <rect x="8" y="228" width="380" height="230" rx="3" fill="#120810" stroke="#5a0808" stroke-width="1"/>
+      <rect x="8" y="228" width="380" height="5" rx="3" fill="#8b0000" opacity="0.6"/>
+      <text x="28" y="250" font-family="Cinzel" font-size="9" fill="#d4a017" letter-spacing="2">🦁 GRYFFINDOR TOWER · IOT &amp; SMART HOME</text>
+      <text x="28" y="263" font-family="Cinzel" font-size="7" fill="#5a3010">Courage · Protection · The Common Room of the Home</text>
 
-  <!-- Dimensions: bottom edge (diagonal end to right) -->
-  <text class="dim-label" x="402" y="482" text-anchor="middle" font-size="9" opacity="0.5">~14'</text>
+      <!-- Pi 5 HAOS -->
+      <rect x="20" y="274" width="170" height="58" rx="2" fill="#1a0810" stroke="#8b0000" stroke-width="0.8"/>
+      <rect x="20" y="274" width="170" height="3" rx="2" fill="#8b0000"/>
+      <text x="30" y="288" font-family="Cinzel" font-size="7.5" fill="#d4a017">Pi 5 · Head Girl's Office</text>
+      <text x="30" y="301" font-family="Cinzel" font-size="7" fill="#c8a0a0">Home Assistant OS</text>
+      <text x="30" y="314" font-family="Cinzel" font-size="7" fill="#5a3010">7″ touch · kiosk :8123</text>
+      <text x="30" y="327" font-family="Cinzel" font-size="7" fill="#7ad88a">● enchanted</text>
 
-  <!-- Compass -->
-  <g transform="translate(660,40)">
-    <circle r="14" fill="none" stroke="#d3d1c7" stroke-width="0.5"/>
-    <text class="dim-label" x="-8" y="4" text-anchor="middle" font-size="10" font-weight="500" fill="#5f5e5a">N</text>
-    <line x1="-4" y1="0" x2="8" y2="0" stroke="#bbb" stroke-width="0.5"/>
-  </g>
+      <!-- Pi 4B Zigbee -->
+      <rect x="198" y="274" width="178" height="58" rx="2" fill="#1a0810" stroke="#c49a00" stroke-width="0.8"/>
+      <rect x="198" y="274" width="178" height="3" rx="2" fill="#c49a00"/>
+      <text x="208" y="288" font-family="Cinzel" font-size="7.5" fill="#d4a017">Pi 4B · Owl Post Room</text>
+      <text x="208" y="301" font-family="Cinzel" font-size="7" fill="#c8a0a0">Zigbee2MQTT · Mosquitto</text>
+      <text x="208" y="314" font-family="Cinzel" font-size="7" fill="#5a3010">ZBDongle-E · MQTT :1883</text>
+      <text x="208" y="327" font-family="Cinzel" font-size="7" fill="#c49a00">Hue + CYNC → HA</text>
 
-  <g id="furniture"></g>
-</svg>
+      <!-- Pi 5 Frigate -->
+      <rect x="20" y="340" width="170" height="56" rx="2" fill="#1a0810" stroke="#c05060" stroke-width="0.8"/>
+      <text x="30" y="354" font-family="Cinzel" font-size="7.5" fill="#d4a017">Pi 5 · The Eye of Sauron</text>
+      <text x="30" y="367" font-family="Cinzel" font-size="7" fill="#c8a0a0">Frigate NVR + Coral TPU</text>
+      <text x="30" y="380" font-family="Cinzel" font-size="7" fill="#5a3010">Wyze RTSP · AI detect</text>
+      <text x="30" y="389" font-family="Cinzel" font-size="7" fill="#c05060">:5000 · Person alerts</text>
+
+      <!-- Apple devices -->
+      <rect x="198" y="340" width="178" height="56" rx="2" fill="#1a0810" stroke="#8a8a9a" stroke-width="0.8"/>
+      <text x="208" y="354" font-family="Cinzel" font-size="7.5" fill="#d4a017">5× HomePod · Portraits</text>
+      <text x="208" y="367" font-family="Cinzel" font-size="7" fill="#c8a0a0">HomeKit hubs · Hey Siri</text>
+      <text x="208" y="380" font-family="Cinzel" font-size="7" fill="#5a3010">2× Apple TV · Media ent.</text>
+      <text x="208" y="389" font-family="Cinzel" font-size="7" fill="#8a8a9a">Thread routers · VLAN 10</text>
+
+      <!-- IoT devices strip -->
+      <rect x="20" y="404" width="356" height="40" rx="2" fill="rgba(139,0,0,0.05)" stroke="#5a0808" stroke-width="0.5" stroke-dasharray="4 3"/>
+      <text x="30" y="420" font-family="Cinzel" font-size="7" fill="#5a3010">VLAN 20 IOT · Hue bulbs · GE CYNC · Wyze cameras · smart plugs · iPhones (companion)</text>
+      <text x="30" y="434" font-family="Cinzel" font-size="7" fill="#5a3010">192.168.20.0/24 · Firewall: IoT → HA only · No access to Trusted VLAN 10</text>
+
+      <!-- R620 tower connection -->
+      <line x1="198" y1="250" x2="420" y2="210" stroke="#8b0000" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+      <!-- ── SLYTHERIN DUNGEONS (Network) ── -->
+      <rect x="596" y="228" width="380" height="230" rx="3" fill="#0a1210" stroke="#1a4a2e" stroke-width="1"/>
+      <rect x="596" y="228" width="380" height="5" rx="3" fill="#1a4a2e" opacity="0.8"/>
+      <text x="616" y="250" font-family="Cinzel" font-size="9" fill="#8a9a8a" letter-spacing="2">🐍 SLYTHERIN DUNGEONS · NETWORK</text>
+      <text x="616" y="263" font-family="Cinzel" font-size="7" fill="#2a5a3a">Cunning · Ambition · Control of All Passages</text>
+
+      <!-- VM 500 Tailscale -->
+      <rect x="608" y="274" width="172" height="58" rx="2" fill="#0a1a10" stroke="#1a4a2e" stroke-width="0.8"/>
+      <rect x="608" y="274" width="172" height="3" rx="2" fill="#1a4a2e"/>
+      <text x="618" y="288" font-family="Cinzel" font-size="7.5" fill="#8a9a8a">VM 500 · The Whomping Willow</text>
+      <text x="618" y="301" font-family="Cinzel" font-size="7" fill="#70a880">Tailscale Gateway</text>
+      <text x="618" y="314" font-family="Cinzel" font-size="7" fill="#2a5a3a">Nginx reverse proxy :80</text>
+      <text x="618" y="327" font-family="Cinzel" font-size="7" fill="#7ad88a">● :80 · remote access</text>
+
+      <!-- VM 401 Pi-hole -->
+      <rect x="788" y="274" width="176" height="58" rx="2" fill="#0a1a10" stroke="#2a4a2a" stroke-width="0.8"/>
+      <text x="798" y="288" font-family="Cinzel" font-size="7.5" fill="#8a9a8a">VM 401 · The Sorting Hat</text>
+      <text x="798" y="301" font-family="Cinzel" font-size="7" fill="#70a880">Pi-hole DNS</text>
+      <text x="798" y="314" font-family="Cinzel" font-size="7" fill="#2a5a3a">Blocks adverts + malice</text>
+      <text x="798" y="327" font-family="Cinzel" font-size="7" fill="#2a5a3a">:53 DNS · :80 admin</text>
+
+      <!-- VM 400 Monitoring -->
+      <rect x="608" y="340" width="172" height="56" rx="2" fill="#0a1a10" stroke="#2a4a2a" stroke-width="0.8"/>
+      <text x="618" y="354" font-family="Cinzel" font-size="7.5" fill="#8a9a8a">VM 400 · The Pensieve</text>
+      <text x="618" y="367" font-family="Cinzel" font-size="7" fill="#70a880">Prometheus + Grafana</text>
+      <text x="618" y="380" font-family="Cinzel" font-size="7" fill="#2a5a3a">All memories recorded</text>
+      <text x="618" y="389" font-family="Cinzel" font-size="7" fill="#2a5a3a">:9090 · :3001</text>
+
+      <!-- HA VM -->
+      <rect x="788" y="340" width="176" height="56" rx="2" fill="#0a1a10" stroke="#8b0000" stroke-width="0.8"/>
+      <text x="798" y="354" font-family="Cinzel" font-size="7.5" fill="#8a9a8a">VM 200 · Dumbledore's Office</text>
+      <text x="798" y="367" font-family="Cinzel" font-size="7" fill="#c8a0a0">Home Assistant OS</text>
+      <text x="798" y="380" font-family="Cinzel" font-size="7" fill="#2a5a3a">(backup — Pi 5 is primary)</text>
+      <text x="798" y="389" font-family="Cinzel" font-size="7" fill="#2a5a3a">:8123</text>
+
+      <!-- Network strip -->
+      <rect x="608" y="404" width="356" height="40" rx="2" fill="rgba(26,74,46,0.05)" stroke="#1a4a2e" stroke-width="0.5" stroke-dasharray="4 3"/>
+      <text x="618" y="420" font-family="Cinzel" font-size="7" fill="#2a5a3a">VLAN 30 SERVERS · 192.168.30.0/24  +  VLAN 10 TRUSTED · 192.168.10.0/24</text>
+      <text x="618" y="434" font-family="Cinzel" font-size="7" fill="#2a5a3a">Tripp-Lite PDU · CyberPower UPS protects R620 + T7610 + UDM + Switch</text>
+
+      <!-- ── RAVENCLAW TOWER (AI) ── -->
+      <rect x="8" y="476" width="380" height="116" rx="3" fill="#0a0c18" stroke="#1c2b6e" stroke-width="1"/>
+      <rect x="8" y="476" width="380" height="5" rx="3" fill="#1c2b6e" opacity="0.8"/>
+      <text x="28" y="496" font-family="Cinzel" font-size="9" fill="#7090d0" letter-spacing="2">🦅 RAVENCLAW TOWER · AI &amp; LLM</text>
+
+      <rect x="20" y="506" width="174" height="78" rx="2" fill="#0c1020" stroke="#1c2b6e" stroke-width="0.8"/>
+      <text x="30" y="520" font-family="Cinzel" font-size="7.5" fill="#7090d0">VM 101 · The Library</text>
+      <text x="30" y="533" font-family="Cinzel" font-size="7" fill="#c8d0e8">llama3.3:70b  11b  405b</text>
+      <text x="30" y="546" font-family="Cinzel" font-size="7" fill="#3a4a6a">32c · 450GB · :11434</text>
+      <text x="30" y="559" font-family="Cinzel" font-size="7" fill="#7090d0">Open WebUI VM 102</text>
+      <text x="30" y="572" font-family="Cinzel" font-size="7" fill="#7ad88a">● casting spells</text>
+
+      <rect x="202" y="506" width="174" height="78" rx="2" fill="#0c1020" stroke="#1c2b6e" stroke-width="0.8"/>
+      <text x="212" y="520" font-family="Cinzel" font-size="7.5" fill="#7090d0">VM 602 · Restricted Section</text>
+      <text x="212" y="533" font-family="Cinzel" font-size="7" fill="#c8d0e8">Qwen 2.5 Coder 32B</text>
+      <text x="212" y="546" font-family="Cinzel" font-size="7" fill="#3a4a6a">T7610 · 6c · 24GB</text>
+      <text x="212" y="559" font-family="Cinzel" font-size="7" fill="#3a4a6a">CI code review · VS Code</text>
+      <text x="212" y="572" font-family="Cinzel" font-size="7" fill="#7ad88a">● :11434</text>
+
+      <!-- ── HUFFLEPUFF (Game Dev) ── -->
+      <rect x="596" y="476" width="380" height="116" rx="3" fill="#18130a" stroke="#6a5010" stroke-width="1"/>
+      <rect x="596" y="476" width="380" height="5" rx="3" fill="#c49a00" opacity="0.5"/>
+      <text x="616" y="496" font-family="Cinzel" font-size="9" fill="#c49a00" letter-spacing="2">🦡 HUFFLEPUFF WORKSHOP · GAME DEV</text>
+
+      <rect x="608" y="506" width="174" height="78" rx="2" fill="#1a1408" stroke="#6a5010" stroke-width="0.8"/>
+      <text x="618" y="520" font-family="Cinzel" font-size="7.5" fill="#c49a00">VM 600 · The Quidditch Pitch</text>
+      <text x="618" y="533" font-family="Cinzel" font-size="7" fill="#e8d0a0">UE5 · Windows 11</text>
+      <text x="618" y="546" font-family="Cinzel" font-size="7" fill="#5a4010">T7610 · 12c · 64GB</text>
+      <text x="618" y="559" font-family="Cinzel" font-size="7" fill="#5a4010">GPU passthrough (RTX)</text>
+      <text x="618" y="572" font-family="Cinzel" font-size="7" fill="#c49a00">VLAN 40 Dev</text>
+
+      <rect x="790" y="506" width="174" height="78" rx="2" fill="#1a1408" stroke="#6a5010" stroke-width="0.8"/>
+      <text x="800" y="520" font-family="Cinzel" font-size="7.5" fill="#c49a00">VM 300 · Madam Pince's Archives</text>
+      <text x="800" y="533" font-family="Cinzel" font-size="7" fill="#e8d0a0">GitLab CE</text>
+      <text x="800" y="546" font-family="Cinzel" font-size="7" fill="#5a4010">R620 · 6c · 32GB</text>
+      <text x="800" y="559" font-family="Cinzel" font-size="7" fill="#5a4010">Source · CI · Wiki</text>
+      <text x="800" y="572" font-family="Cinzel" font-size="7" fill="#7ad88a">● :80 :443</text>
+
+      <!-- Connecting lines from switch to houses -->
+      <line x1="370" y1="189" x2="200" y2="228" stroke="#8b0000" stroke-width="0.8" stroke-dasharray="5 4" opacity="0.5"/>
+      <line x1="610" y1="189" x2="785" y2="228" stroke="#1a4a2e" stroke-width="0.8" stroke-dasharray="5 4" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <p style="text-align:center;font-family:var(--font-script);font-size:22px;color:rgba(212,160,23,0.35);margin-top:12px;font-style:italic;">
+    "Mischief Managed"
+  </p>
+</section>
+
+<div class="torch-divider">⚡ · ⚡ · ⚡</div>
+
+<!-- ═════════════════════════════
+     GRYFFINDOR TOWER — IoT
+     ═════════════════════════════ -->
+<section id="gryffindor">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-g">🦁</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter II · Gryffindor Tower</div>
+      <h2>IoT &amp; Smart Home</h2>
+      <p>Where brave hearts protect the home — Home Assistant, Zigbee, cameras, and Apple sorcery.</p>
+    </div>
+  </div>
+
+  <div class="scroll-grid">
+    <div class="scroll sc-g">
+      <span class="scroll-icon">🍓</span>
+      <div class="scroll-title">The Head Girl's Office</div>
+      <div class="scroll-body">Raspberry Pi 5 (16GB) running Home Assistant OS bare-metal. The 7″ enchanted portrait shows the Lovelace dashboard in kiosk mode. One crystal ball, two jobs.</div>
+      <div class="scroll-rune">192.168.30.50 · HAOS stable · PoE powered</div>
+    </div>
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">📡</span>
+      <div class="scroll-title">The Owl Post Chamber</div>
+      <div class="scroll-body">Raspberry Pi 4B with Sonoff ZBDongle-E — retires Hue and CYNC vendor bridges. Every Zigbee device now reports directly through Zigbee2MQTT. Faster. No clouds. More spells.</div>
+      <div class="scroll-rune">MQTT :1883 · Z2M :8080 · ZBDongle-E</div>
+    </div>
+    <div class="scroll sc-g">
+      <span class="scroll-icon">🎥</span>
+      <div class="scroll-title">The Eye of Argus Filch</div>
+      <div class="scroll-body">Raspberry Pi 5 (8GB) with Coral USB TPU runs Frigate NVR. Wyze camera feeds enter via docker-wyze-bridge. The Coral detects persons with 15ms latency. Nothing moves unseen.</div>
+      <div class="scroll-rune">Frigate :5000 · Coral TPU · RTSP feeds</div>
+    </div>
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">🔊</span>
+      <div class="scroll-title">The Enchanted Portraits</div>
+      <div class="scroll-body">Five HomePod Minis serve as HomeKit hubs — they carry Siri's voice through the castle. Home Assistant exposes entities via HomeKit Bridge. "Hey Siri, Movie Night" conjures the scene.</div>
+      <div class="scroll-rune">VLAN 10 Trusted · Thread border routers</div>
+    </div>
+    <div class="scroll sc-g">
+      <span class="scroll-icon">📺</span>
+      <div class="scroll-title">The Moving Portraits</div>
+      <div class="scroll-body">Two Apple TV 4K units serve as redundant HomeKit hubs. Home Assistant's apple_tv integration tracks play/pause state — lights dim when the film begins, brighten when you pause.</div>
+      <div class="scroll-rune">Media entities · Auto-dim · Hub redundancy</div>
+    </div>
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">💡</span>
+      <div class="scroll-title">The Lumos Charm</div>
+      <div class="scroll-body">Philips Hue overhead (via Zigbee2MQTT, no Hue bridge) and GE CYNC under-cabinet (Matter) treated as one system. One scene = all lights. Adaptive brightness. Vendor bridges retired.</div>
+      <div class="scroll-rune">Zigbee direct · Matter-over-WiFi · 1 scene</div>
+    </div>
+  </div>
+
+  <h3 style="font-family:var(--font-head);color:var(--candle);margin:32px 0 16px;font-size:18px;letter-spacing:0.03em;">Enchantments (Automations)</h3>
+
+  <div class="grimoire-wrap">
+    <table>
+      <thead><tr><th>Trigger</th><th>Incantation</th><th>Spell Cast</th><th>Magic Source</th></tr></thead>
+      <tbody>
+        <tr><td>iPhone leaves home WiFi</td><td>Last soul departs</td><td>Lights extinguish, cameras arm, locks seal</td><td><span class="seal s-s">UniFi → HA</span></td></tr>
+        <tr><td>iPhone returns</td><td>Familiar detected</td><td>Lights warm, cameras disarm, welcome</td><td><span class="seal s-s">UniFi → HA</span></td></tr>
+        <tr><td>Apple TV → Playing</td><td>Lumos Solem</td><td>Living room dims to 20% warm amber</td><td><span class="seal s-n">Apple TV → HA</span></td></tr>
+        <tr><td>Apple TV → Paused</td><td>Nox Reverso</td><td>Lights return to previous level</td><td><span class="seal s-n">Apple TV → HA</span></td></tr>
+        <tr><td>Frigate detects person</td><td>Homenum Revelio</td><td>HomePod announces, snapshot to HA</td><td><span class="seal s-g">Frigate → HA</span></td></tr>
+        <tr><td>"Hey Siri, Movie Night"</td><td>Nox + Accio Couch</td><td>Dims all, TV input, CYNC off, HomePod ready</td><td><span class="seal s-n">HomeKit → HA</span></td></tr>
+        <tr><td>Guest arrives (QR scan)</td><td>Alohomora (temp)</td><td>24h guest WiFi, limited access, auto-revoke</td><td><span class="seal s-s">UniFi → HA</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:var(--font-head);color:var(--candle);margin:32px 0 16px;font-size:18px;letter-spacing:0.03em;">Casting the Setup Spells</h3>
+
+  <div class="incantations">
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-g">I</div>
+      <div class="is-body">
+        <h3>Flash HAOS to Pi 5 — The First Enchantment</h3>
+        <p>Raspberry Pi Imager → Other → Home Assistant OS. Boot Pi 5. Wait 5 minutes for the magic to take hold.</p>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Incantation — First Boot</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre><span class="sd"># The onboarding portal appears at:</span>
+<span class="sg">http://homeassistant.local:8123</span>
+<span class="sd"># Or by IP: http://192.168.30.50:8123</span>
+<span class="sd"># Complete the ritual — create admin credentials</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-g">II</div>
+      <div class="is-body">
+        <h3>Summon the Integrations</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Settings → Devices & Services → Add Integration</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre><span class="sb">UniFi Network</span>     <span class="sd"># host: 192.168.1.1 · local admin (not cloud)</span>
+<span class="sb">MQTT</span>               <span class="sd"># host: 192.168.30.51 · port 1883</span>
+<span class="sb">Zigbee2MQTT</span>        <span class="sd"># auto-discovered through MQTT</span>
+<span class="sb">Apple TV</span>           <span class="sd"># auto-discovered · VLAN 10</span>
+<span class="sb">HomeKit Bridge</span>     <span class="sd"># exposes HA entities to HomePod + Siri</span>
+<span class="sb">Frigate</span>            <span class="sd"># via HACS · host: 192.168.30.52:5000</span>
+<span class="sb">Mobile App</span>         <span class="sd"># iOS companion for presence detection</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-g">III</div>
+      <div class="is-body">
+        <h3>Raise the Zigbee Coordinator — Pi 4B</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Pi 4B Setup Ritual</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre>curl -fsSL https://get.docker.com | sh
+
+<span class="sd"># Mosquitto MQTT broker</span>
+docker run -d --name mosquitto --restart always \
+  -p <span class="sg">1883:1883</span> eclipse-mosquitto
+
+<span class="sd"># Zigbee2MQTT — ZBDongle-E on /dev/ttyUSB0</span>
+docker run -d --name z2m --restart always \
+  --device <span class="sg">/dev/ttyUSB0:/dev/ttyUSB0</span> \
+  -p <span class="sg">8080:8080</span> \
+  -e ZIGBEE2MQTT_CONFIG_MQTT_SERVER=<span class="sg">"mqtt://localhost:1883"</span> \
+  -v z2m-data:/app/data koenkk/zigbee2mqtt</pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-g">IV</div>
+      <div class="is-body">
+        <h3>Awaken Frigate — The Seeing Eye</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Pi 5 (8GB + Coral) Setup</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre><span class="sd"># Install Coral USB TPU runtime</span>
+echo <span class="sg">"deb https://packages.cloud.google.com/apt coral-edgetpu-stable main"</span> | \
+  sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
+sudo apt-get update && sudo apt-get install libedgetpu1-std
+
+<span class="sd"># Wyze bridge — converts Wyze to RTSP</span>
+docker run -d --name wyze-bridge --restart always \
+  -p <span class="sg">8554:8554</span> \
+  -e WYZE_EMAIL=<span class="sr">your@email.com</span> \
+  -e WYZE_PASSWORD=<span class="sr">yourpassword</span> \
+  mrlt8/wyze-bridge
+
+<span class="sd"># Frigate NVR with Coral detection</span>
+docker run -d --name frigate --restart always \
+  --privileged --shm-size=<span class="sh">64m</span> \
+  -p <span class="sg">5000:5000</span> \
+  --device /dev/bus/usb \
+  ghcr.io/blakeblackshear/frigate:stable</pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-orb io-g">V</div>
+      <div class="is-body">
+        <h3>Bind HomePods to the Enchantment</h3>
+        <p>In Home Assistant → Settings → Devices → HomeKit Bridge → Add Integration. Scan the QR code with your iPhone. HomePods discover automatically. Name all entities cleanly for Siri: "living room lights" not "light.light_1abc2".</p>
+        <div class="notice n-g">
+          <span class="notice-icon">🔊</span>
+          <div><strong>The Trick:</strong> Entity naming determines Siri vocabulary. If the entity is named "main bedroom overhead", Siri responds to "Hey Siri, turn off main bedroom overhead" without any Shortcuts setup. Get the names right first.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="torch-divider">🐍 · Slytherin · 🐍</div>
+
+<!-- ═════════════════════════════
+     SLYTHERIN DUNGEONS — Network
+     ═════════════════════════════ -->
+<section id="slytherin">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-s">🐍</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter III · The Dungeons</div>
+      <h2>Network &amp; Security</h2>
+      <p>The cunning Slytherins control all passages — UniFi, VLANs, Tailscale, Pi-hole, and Nginx.</p>
+    </div>
+  </div>
+
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--slyth-silver)">VLAN 1</div><div class="vlan-stripe" style="background:var(--slyth-silver)"></div><div class="vlan-name">The Headmaster's Office</div><div class="vlan-desc">Management — Proxmox hosts, UDM Pro. No internet. Admin SSH only. Locked tighter than Azkaban.</div></div>
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--gryff-gold)">VLAN 10</div><div class="vlan-stripe" style="background:var(--gryff-gold)"></div><div class="vlan-name">Gryffindor Common Room</div><div class="vlan-desc">Trusted — MacBooks, iPhones, HomePods, Apple TVs. Full internet. Can reach servers on VLAN 30.</div></div>
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--huffl-yellow)">VLAN 20</div><div class="vlan-stripe" style="background:var(--huffl-yellow)"></div><div class="vlan-name">The Forbidden Forest</div><div class="vlan-desc">IoT — Hue, CYNC, Wyze, smart plugs. Blocked from Trusted. Only Home Assistant (VLAN 30) may enter.</div></div>
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--raven-blue)">VLAN 30</div><div class="vlan-stripe" style="background:var(--raven-blue)"></div><div class="vlan-name">Ravenclaw Tower</div><div class="vlan-desc">Servers — R620 VMs, Pi cluster, all services. Reachable from Trusted. Can reach IoT VLAN 20.</div></div>
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--huffl-yellow)">VLAN 40</div><div class="vlan-stripe" style="background:var(--huffl-yellow)"></div><div class="vlan-name">Hufflepuff Greenhouse</div><div class="vlan-desc">Dev/Prototype — T7610 VMs, UE5, custom hardware experiments. Sandboxed. Can't reach IoT or Trusted.</div></div>
+  <div class="vlan-row"><div class="vlan-id" style="color:var(--slyth-green)">VLAN 50</div><div class="vlan-stripe" style="background:var(--slyth-green)"></div><div class="vlan-name">The Leaky Cauldron</div><div class="vlan-desc">Guest — Internet only. Password rotates monthly via HA automation. Like a good pub — friendly but contained.</div></div>
+
+  <div class="spellbook" style="margin-top:28px">
+    <div class="spellbook-header"><span class="spell-name">Dungeon Commands — UniFi API Token for HA</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+    <pre><span class="sd"># In UniFi Network: Settings → Admins → Create local admin</span>
+<span class="sd"># Name: homeassistant · Role: Limited Admin</span>
+<span class="sd"># Do NOT use Ubiquiti cloud account — local auth only</span>
+
+<span class="sd"># Set Orbi to AP mode — plug RBR750 into PoE switch</span>
+<span class="sd"># Disable UDM Pro's built-in WiFi radio</span>
+<span class="sd"># Create SSIDs: "Trusted" → VLAN 10 · "IoT" → VLAN 20</span>
+
+<span class="sd"># Create API token on each Proxmox host</span>
+pveum token add root@pam automation --privsep=<span class="sh">0</span>
+pvesm set local --content <span class="sg">iso,vztmpl,backup,snippets</span></pre>
+  </div>
+</section>
+
+<div class="torch-divider">🦅 · Ravenclaw · 🦅</div>
+
+<!-- ═════════════════════════════
+     RAVENCLAW TOWER — AI / LLM
+     ═════════════════════════════ -->
+<section id="ravenclaw">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-r">🦅</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter IV · Ravenclaw Tower</div>
+      <h2>AI &amp; Local Language Models</h2>
+      <p>The wise Ravenclaws hoard knowledge — Llama 3.3 70B through 405B, all running in your library.</p>
+    </div>
+  </div>
+
+  <div class="scroll-grid-2">
+    <div class="scroll sc-r">
+      <span class="scroll-icon">📚</span>
+      <div class="scroll-title">VM 101 — The Restricted Library</div>
+      <div class="scroll-body">32 vCPUs, 450GB RAM on R620. Holds llama3.3:70b (the workhorse), llama3.2:11b (the quick apprentice), and llama3.1:405b-q2_K — the rarest tome, only readable on hardware of this scale. Open WebUI on VM 102 provides the reading room interface.</div>
+      <div class="scroll-rune">CPU-only · 5-15 tok/s 70B · 1TB model vault</div>
+    </div>
+    <div class="scroll sc-r">
+      <span class="scroll-icon">🔮</span>
+      <div class="scroll-title">VM 602 — The Crystal Ball (T7610)</div>
+      <div class="scroll-body">Qwen 2.5 Coder 32B on T7610 — 6 vCPUs, 24GB RAM. Integrated with GitLab for automated code review via CI pipelines. Connected to VS Code via Continue.dev for live suggestions. Faster than the library for development tasks.</div>
+      <div class="scroll-rune">Qwen2.5-Coder:32b · :11434 · CI integration</div>
+    </div>
+  </div>
+
+  <div class="grimoire-wrap">
+    <table>
+      <thead><tr><th>Familiar</th><th>Tower</th><th>Memory Required</th><th>Speed</th><th>Specialty</th></tr></thead>
+      <tbody>
+        <tr><td><span class="seal s-r">llama3.3:70b</span></td><td>R620 Library</td><td>~45 GB</td><td>8-12 tok/s</td><td>Primary workhorse — reasoning, writing, all tasks</td></tr>
+        <tr><td><span class="seal s-r">llama3.2:11b</span></td><td>R620 + T7610</td><td>~8 GB</td><td>25-40 tok/s</td><td>Quick apprentice — fast answers, scripts</td></tr>
+        <tr><td><span class="seal s-r">llama3.1:405b-q2_K</span></td><td>R620 only</td><td>~250 GB</td><td>2-5 tok/s</td><td>The Elder Wand — frontier quality, rare magic</td></tr>
+        <tr><td><span class="seal s-r">qwen2.5-coder:32b</span></td><td>T7610</td><td>~22 GB</td><td>12-18 tok/s</td><td>The Spellbook — UE5 C++, GitLab review</td></tr>
+        <tr><td><span class="seal s-n">llama3.2:3b</span></td><td>T7610</td><td>~2 GB</td><td>60+ tok/s</td><td>The Quick-Quill — CI hooks, automation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="incantations" style="margin-top:24px">
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-r">I</div>
+      <div class="is-body">
+        <h3>Summon the Familiar (Install Ollama)</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">The Ollama Summoning Ritual</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre>ssh llmadmin@192.168.30.10
+
+curl -fsSL https://ollama.com/install.sh | sh
+
+<span class="sd"># Configure the familiar's habitat</span>
+sudo tee /etc/systemd/system/ollama.service << <span class="sg">'EOF'</span>
+[Service]
+Environment=<span class="sb">"OLLAMA_HOST=0.0.0.0:11434"</span>
+Environment=<span class="sb">"OLLAMA_MODELS=/opt/ollama/models"</span>
+Environment=<span class="sb">"OLLAMA_NUM_PARALLEL=4"</span>
+Environment=<span class="sb">"OLLAMA_MAX_LOADED_MODELS=2"</span>
+Environment=<span class="sb">"GOMAXPROCS=32"</span>
+<span class="sg">EOF</span>
+
+<span class="sd"># Bind the 70B familiar (takes 20-40 min)</span>
+ollama pull <span class="sg">llama3.3:70b</span>
+ollama pull <span class="sg">llama3.2:11b</span>
+<span class="sd"># The Elder Wand — start overnight, 2-3 hours</span>
+ollama pull <span class="sr">llama3.1:405b-q2_K</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-orb io-r">II</div>
+      <div class="is-body">
+        <h3>Bind Ollama to Home Assistant (Voice AI)</h3>
+        <p>Install the Ollama integration via HACS. This adds an AI conversation agent — "Hey Siri, ask my AI about…" routes via HomePod → HA → Ollama → spoken response. Fully local voice intelligence.</p>
+        <div class="notice n-r">
+          <span class="notice-icon">🦅</span>
+          <div><strong>The Ravenclaw Secret:</strong> The quick CLI spell for your terminal — add to .zshrc and conjure answers from anywhere on your network without opening a browser.</div>
+        </div>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Terminal Incantation — .zshrc</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre>llm() {
+  curl -s http://192.168.30.10:11434/api/generate \
+    -d <span class="sg">"{\"model\":\"llama3.3:70b\",\"prompt\":\"$*\",\"stream\":false}"</span> \
+    | python3 -c <span class="sg">"import sys,json; print(json.load(sys.stdin)['response'])"</span>
+}
+
+<span class="sd"># Usage:</span>
+llm <span class="sg">"explain why NUMA matters for dual-socket Xeon inference"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="torch-divider">🦡 · Hufflepuff · 🦡</div>
+
+<!-- ═════════════════════════════
+     HUFFLEPUFF — Game Dev
+     ═════════════════════════════ -->
+<section id="hufflepuff">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-h">🦡</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter V · Hufflepuff Cellars</div>
+      <h2>Game Development</h2>
+      <p>The hardworking Hufflepuffs build worlds — UE5, GitLab, CI pipelines, and AI-assisted code review.</p>
+    </div>
+  </div>
+
+  <div class="scroll-grid">
+    <div class="scroll sc-h">
+      <span class="scroll-icon">🎮</span>
+      <div class="scroll-title">VM 600 — The Quidditch Pitch</div>
+      <div class="scroll-body">Windows 11 with GPU passthrough on T7610. 12 vCPUs, 64GB RAM. Unreal Engine 5 with full editor performance. RTX 3090 GPU passthrough when card arrives. IOMMU enabled.</div>
+      <div class="scroll-rune">T7610 · VLAN 40 · GPU passthrough</div>
+    </div>
+    <div class="scroll sc-h">
+      <span class="scroll-icon">📜</span>
+      <div class="scroll-title">VM 300 — Madam Pince's Archives</div>
+      <div class="scroll-body">GitLab Community Edition — self-hosted source control, merge requests, CI/CD pipelines, project wiki, issue tracking. Every scroll, every line of magic, every change recorded.</div>
+      <div class="scroll-rune">R620 · 6c · 32GB · :80 :443</div>
+    </div>
+    <div class="scroll sc-h">
+      <span class="scroll-icon">⚙️</span>
+      <div class="scroll-title">VM 601 — The Workshop</div>
+      <div class="scroll-body">Bare-metal GitLab runner on T7610 for UE5 builds. CI jobs that need direct hardware access — shader compilation, asset cooking, packaging. Needs the real iron, not a virtual cauldron.</div>
+      <div class="scroll-rune">T7610 · 6c · 16GB · bare-metal</div>
+    </div>
+    <div class="scroll sc-r">
+      <span class="scroll-icon">🤖</span>
+      <div class="scroll-title">VM 602 — The Enchanted Quill</div>
+      <div class="scroll-body">Qwen 2.5 Coder AI reviews every merge request. CI pipeline sends diffs to Ollama — suggestions appear as GitLab comments before any human touches the code. Magic code review at zero cost.</div>
+      <div class="scroll-rune">T7610 · Qwen2.5-Coder:32b · CI hook</div>
+    </div>
+  </div>
+
+  <div class="spellbook" style="margin-top:16px">
+    <div class="spellbook-header"><span class="spell-name">Incantation — .gitlab-ci.yml for UE5</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+    <pre>stages: [<span class="sg">build</span>, <span class="sh">package</span>, <span class="sb">review</span>]
+
+<span class="sg">build-editor</span>:
+  stage: build
+  tags: [<span class="sr">ue5-runner</span>]     <span class="sd"># routes to VM 601</span>
+  script:
+    - <span class="sg">"C:/Program Files/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat"</span>
+    - MyGame Win64 Development MyGame.uproject
+
+<span class="sb">ai-review</span>:
+  stage: review
+  tags: [<span class="sb">docker</span>]
+  script:
+    - <span class="sd"># The Enchanted Quill reads your diff</span>
+    - git diff HEAD~1 | curl -s http://192.168.40.20:11434/api/generate
+      -d <span class="sg">"{\"model\":\"qwen2.5-coder:32b\",
+         \"prompt\":\"Review this UE5 diff and suggest improvements:$(cat -)\"}"</span></pre>
+  </div>
+</section>
+
+<div class="torch-divider">⌨️ · Terminal Sorcery · ⌨️</div>
+
+<!-- ═════════════════════════════
+     TERMINAL & CONSISTENCY
+     ═════════════════════════════ -->
+<section id="terminal">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-n">⌨️</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter VI · The Scriptorium</div>
+      <h2>Terminal Sorcery &amp; Consistency</h2>
+      <p>Every SSH session feels like home — same incantations, same familiar prompt, across all towers.</p>
+    </div>
+  </div>
+
+  <div class="crystal">
+    <div class="crystal-rim">
+      <div class="c-dot cd-r"></div><div class="c-dot cd-g"></div><div class="c-dot cd-b"></div>
+      <div class="crystal-title">The Scrying Glass — llmadmin @ r620-inference</div>
+    </div>
+    <div class="crystal-body">
+      <div><span class="ct-prompt">llmadmin</span><span style="color:#2a3050">@</span><span class="ct-host">r620-inference</span><span style="color:#2a3050"> ~/</span><span style="color:var(--gryff-gold)"> ❯ </span><span class="ct-cmd">lab-status</span></div>
+      <div><span class="ct-ok">✦ r620-inference   Ollama :11434   3 familiars   RAM 68/450GB</span></div>
+      <div><span class="ct-ok">✦ t7610-inference  Ollama :11434   2 familiars   RAM 28/100GB</span></div>
+      <div><span class="ct-info">✦ ha.lab           Home Assistant :8123   v2024.12</span></div>
+      <div><span class="ct-info">✦ git.lab          GitLab CE :80   all pipelines green</span></div>
+      <div><span class="ct-warn">⚡ monitoring       Grafana :3001   2 portents</span></div>
+      <div style="margin-top:8px"><span class="ct-prompt">llmadmin</span><span style="color:#2a3050">@</span><span class="ct-host">r620-inference</span><span style="color:#2a3050"> ~/</span><span style="color:var(--gryff-gold)"> ❯ </span><span class="ct-cmd">llm "explain NUMA for dual-socket Xeon"</span></div>
+      <div><span class="ct-out">NUMA (Non-Uniform Memory Access) distributes memory controllers across...</span></div>
+    </div>
+  </div>
+
+  <div class="scroll-grid" style="margin-top:24px">
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">🎨</span>
+      <div class="scroll-title">iTerm2 Space Themes</div>
+      <div class="scroll-body">Best cosmos-compatible colour schemes for the terminal. Tokyo Night Storm for deep blue space. Catppuccin Mocha for warm cosmic purple. Dracula for classic dark with neon accents.</div>
+      <div class="scroll-rune"><a href="https://iterm2colorschemes.com" target="_blank" style="color:var(--candle)">iterm2colorschemes.com</a></div>
+    </div>
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">🚀</span>
+      <div class="scroll-title">Starship Prompt</div>
+      <div class="scroll-body">Cross-shell, cross-server prompt that works identically on macOS and every Linux VM. Shows git branch, command duration, RAM %, exit codes. Deploy via Ansible to all servers.</div>
+      <div class="scroll-rune"><a href="https://starship.rs" target="_blank" style="color:var(--candle)">starship.rs</a></div>
+    </div>
+    <div class="scroll sc-gold">
+      <span class="scroll-icon">📦</span>
+      <div class="scroll-title">Dotfiles Repository</div>
+      <div class="scroll-body">Keep .zshrc, SSH config, starship.toml, iTerm2 profile, gitconfig in a private GitHub repo. One <code>install.sh</code> symlinks everything. One Ansible task deploys it to every server.</div>
+      <div class="scroll-rune">git clone → ./install.sh → done</div>
+    </div>
+  </div>
+
+  <div class="incantations" style="margin-top:16px">
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-n">I</div>
+      <div class="is-body">
+        <h3>Export iTerm2 Profile</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">Profile Preservation Spell</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre><span class="sd"># iTerm2 → Preferences → Profiles → Other Actions → Export JSON</span>
+<span class="sd"># Save as ~/dotfiles/iterm2/cosmos.json</span>
+
+<span class="sd"># Export all preferences (colors, keys, everything)</span>
+defaults export com.googlecode.iterm2 ~/dotfiles/iterm2/prefs.plist
+
+<span class="sd"># Import on a new Mac</span>
+defaults import com.googlecode.iterm2 ~/dotfiles/iterm2/prefs.plist</pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-line"></div>
+      <div class="is-orb io-n">II</div>
+      <div class="is-body">
+        <h3>The Master Grimoire — .zshrc</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">~/.zshrc — Hogwarts Edition</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre><span class="sd"># ── Conjure Oh My Zsh + Starship ─────────────────</span>
+export ZSH=<span class="sg">"$HOME/.oh-my-zsh"</span>
+plugins=(git docker fzf z zsh-autosuggestions zsh-syntax-highlighting)
+source $ZSH/oh-my-zsh.sh
+eval <span class="sg">"$(starship init zsh)"</span>
+
+<span class="sd"># ── Portkey shortcuts — one letter per tower ─────</span>
+alias r=<span class="sg">"ssh llmadmin@192.168.30.10"</span>   <span class="sd"># Ravenclaw Tower</span>
+alias g=<span class="sg">"ssh llmadmin@192.168.30.1"</span>    <span class="sd"># Great Gate (gateway)</span>
+alias t=<span class="sg">"ssh llmadmin@192.168.40.20"</span>   <span class="sd"># Hufflepuff Workshop</span>
+alias m=<span class="sg">"ssh llmadmin@192.168.30.21"</span>   <span class="sd"># The Pensieve</span>
+alias ha=<span class="sg">"ssh pi@192.168.30.50"</span>        <span class="sd"># Gryffindor Tower</span>
+alias pve1=<span class="sg">"ssh root@192.168.1.100"</span>   <span class="sd"># R620 Proxmox</span>
+alias pve2=<span class="sg">"ssh root@192.168.1.101"</span>   <span class="sd"># T7610 Proxmox</span>
+
+<span class="sd"># ── Summoning spells ─────────────────────────────</span>
+llm() { curl -s http://192.168.30.10:11434/api/generate \
+  -d <span class="sg">"{\"model\":\"llama3.3:70b\",\"prompt\":\"$*\",\"stream\":false}"</span> \
+  | python3 -c <span class="sg">"import sys,json; print(json.load(sys.stdin)['response'])"</span>; }
+
+llm-fast() { curl -s http://192.168.30.10:11434/api/generate \
+  -d <span class="sg">"{\"model\":\"llama3.2:11b\",\"prompt\":\"$*\",\"stream\":false}"</span> \
+  | python3 -c <span class="sg">"import sys,json; print(json.load(sys.stdin)['response'])"</span>; }
+
+<span class="sd"># ── Castle census ────────────────────────────────</span>
+lab-status() {
+  echo <span class="sg">"=== Hogwarts Homelab Status ==="</span>
+  for name ip in r620 192.168.30.10 t7610 192.168.40.20; do
+    echo -n <span class="sg">"$name Ollama: "</span>
+    curl -sf --max-time 2 http://$ip:11434/api/tags > /dev/null \
+      && echo <span class="sg">"✦ enchanted"</span> || echo <span class="sr">"✗ dormant"</span>
+  done
+  curl -sf --max-time 2 http://192.168.30.50:8123 > /dev/null \
+    && echo <span class="sg">"ha: ✦ watching"</span> || echo <span class="sr">"ha: ✗ dark"</span>
+}
+
+<span class="sd"># ── Modern spellbooks ────────────────────────────</span>
+alias ls=<span class="sg">"eza --icons --git"</span>
+alias ll=<span class="sg">"eza -la --icons --git"</span>
+alias cat=<span class="sg">"bat"</span>
+alias top=<span class="sg">"btop"</span>
+alias grep=<span class="sg">"rg"</span>
+alias tf=<span class="sg">"terraform"</span>
+alias ap=<span class="sg">"ansible-playbook"</span>
+
+<span class="sd"># ── Portal colours ───────────────────────────────</span>
+export FZF_DEFAULT_OPTS=<span class="sg">'--color=dark,bg+:#1c1428,fg+:#d4a017,hl:#8b0000,border:#3a3020'</span>
+
+<span class="sd"># ── Open the halls ───────────────────────────────</span>
+alias open-ha=<span class="sg">"open http://192.168.30.50:8123"</span>
+alias open-ai=<span class="sg">"open http://192.168.30.1"</span>
+alias open-git=<span class="sg">"open http://192.168.30.1/git"</span>
+alias open-grafana=<span class="sg">"open http://192.168.30.21:3001"</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="incant-step">
+      <div class="is-orb io-n">III</div>
+      <div class="is-body">
+        <h3>Deploy Grimoire to All Towers — Ansible</h3>
+        <div class="spellbook">
+          <div class="spellbook-header"><span class="spell-name">The Great Synchronisation Ritual</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+          <pre>- name: Install Zsh + terminal tools
+  apt:
+    name: [zsh, git, curl, fzf, bat, ripgrep, btop, tmux]
+
+- name: Summon Oh My Zsh
+  shell: |
+    [ -d ~/.oh-my-zsh ] || sh -c <span class="sg">"$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</span> <span class="sr">""</span> --unattended
+
+- name: Summon Starship
+  shell: command -v starship || curl -sS https://starship.rs/install.sh | sh -s -- -y
+
+- name: Deploy grimoire and star charts
+  copy:
+    src: <span class="sg">"{{ item.src }}"</span>
+    dest: <span class="sg">"{{ item.dest }}"</span>
+  loop:
+    - { src: <span class="sr">dotfiles/.zshrc</span>, dest: <span class="sg">"/home/{{ admin_user }}/.zshrc"</span> }
+    - { src: <span class="sr">dotfiles/starship.toml</span>, dest: <span class="sg">"/home/{{ admin_user }}/.config/starship.toml"</span> }
+
+- name: Set Zsh as default wand
+  user: name=<span class="sg">"{{ admin_user }}"</span> shell=/bin/zsh</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="torch-divider">🗺 · The Prophecy · 🗺</div>
+
+<!-- ═════════════════════════════
+     DEPLOYMENT PROPHECY
+     ═════════════════════════════ -->
+<section id="prophecy">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-n">🔮</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter VII · The Hall of Prophecy</div>
+      <h2>The Deployment Prophecy</h2>
+      <p>The phases unfold in order. Each one builds upon the last. Do not skip a phase — the magic requires the foundation.</p>
+    </div>
+  </div>
+
+  <div class="prophecy">
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--slyth-silver)">Phase Zero</div><div><div class="prophecy-head">The Great Gate — Network Foundation</div><div class="prophecy-body">UDM Pro setup · 6 VLANs created · Orbi set to AP mode wired into PoE switch · Trusted + IoT SSIDs broadcast · Local homeassistant admin created · CyberPower UPS protecting critical devices. Everything downstream requires this foundation.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--gryff-gold)">Phase One</div><div><div class="prophecy-head">The Philosopher's Stone — Proxmox on Both Servers</div><div class="prophecy-body">Flash Proxmox VE 9 ISO to USB · Boot R620 (192.168.1.100) and T7610 (192.168.1.101) · Enable snippets storage · Enable IOMMU on T7610 for GPU passthrough · Create API tokens · Run preflight Ansible playbook.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--gryff-gold)">Phase Two</div><div><div class="prophecy-head">The Sorting — Configure All Variables</div><div class="prophecy-body">Fill config/secrets.yaml with tokens, keys, passwords · Review IPs in config/vars.yaml · Run python3 scripts/generate-configs.py to emit Terraform, Ansible, Puppet, and PowerShell configs from one master scroll.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--raven-blue)">Phase Three</div><div><div class="prophecy-head">Ravenclaw Tower — AI VMs on R620</div><div class="prophecy-body">terraform apply in environments/r620 · Creates VM 101 (inference 450GB), VM 102 (WebUI), VM 103 (gateway) · Installs Ollama · Pulls llama3.3:70b and 11b immediately · Start 405B pull overnight — 2-3 hours on gigabit.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--gryff-scarlet)">Phase Four</div><div><div class="prophecy-head">Gryffindor Tower — IoT Core Awakens</div><div class="prophecy-body">Flash HAOS to Pi 5 (16GB) · Complete onboarding · Add UniFi, MQTT, Zigbee2MQTT, Apple TV, HomeKit Bridge integrations · Set up Pi 4B Zigbee2MQTT · Pair Hue and CYNC — retire vendor bridges · Pi 5 (8GB) Frigate + Wyze bridge · Configure kiosk mode on touchscreen.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--slyth-silver)">Phase Five</div><div><div class="prophecy-head">The Portraits Awaken — Apple Ecosystem</div><div class="prophecy-body">HomeKit Bridge integration in HA · Scan QR with iPhone · HomePods discover as primary hub · Apple TV integration for media state · Name all entities for clean Siri speech · Test "Hey Siri, Movie Night" · Verify auto-dim works when Apple TV plays.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--huffl-yellow)">Phase Six</div><div><div class="prophecy-head">Hufflepuff Workshop — Game Dev Stack</div><div class="prophecy-body">Terraform T7610 environment · GitLab CE on VM 300 · Import repositories · Set up gitlab-runner on VM 601 (bare-metal) · Configure UE5 CI pipeline · VM 600 Windows 11 with UE5 · RTX 3090 GPU passthrough when card arrives.</div></div></div>
+    <div class="prophecy-item"><div class="prophecy-phase" style="color:var(--slyth-green)">Phase Seven</div><div><div class="prophecy-head">Slytherin Dungeons — Monitoring + Access</div><div class="prophecy-body">VM 400 Prometheus + Grafana · Import dashboards 1860 + 12486 · VM 401 Pi-hole for network-wide DNS · VM 500 Tailscale gateway + Nginx reverse proxy · From this phase on, remote access from your phone works from anywhere on earth.</div></div></div>
+  </div>
+
+  <div class="spellbook" style="margin-top:24px">
+    <div class="spellbook-header"><span class="spell-name">The Complete Ritual Sequence</span><button class="incant-btn" onclick="cast(this)">Cast ✦</button></div>
+    <pre><span class="sd"># ── Prepare your wand (Mac) ──────────────────────────</span>
+brew install terraform ansible python3
+pip3 install pyyaml
+ssh-keygen -t ed25519 -C <span class="sg">"hogwarts-homelab"</span>
+
+<span class="sd"># ── Fill the cauldron (config) ───────────────────────</span>
+cp config/secrets.yaml.example config/secrets.yaml
+<span class="sr">nano config/secrets.yaml</span>   <span class="sd"># tokens, keys, passwords</span>
+python3 scripts/generate-configs.py
+
+<span class="sd"># ── Cast the preflight charm ─────────────────────────</span>
+ansible-playbook ansible/playbooks/preflight.yml
+
+<span class="sd"># ── Raise Ravenclaw Tower (AI) ───────────────────────</span>
+cd terraform/environments/r620 && terraform init && terraform apply
+
+<span class="sd"># ── Raise Hufflepuff Workshop (Dev) ──────────────────</span>
+cd ../t7610 && terraform init && terraform apply
+
+<span class="sd"># ── Configure all towers (Ansible) ───────────────────</span>
+cd ../../.. && ansible-playbook ansible/playbooks/r620.yml
+ansible-playbook ansible/playbooks/t7610.yml
+
+<span class="sd"># ── Daily spells ─────────────────────────────────────</span>
+lab-status                           <span class="sd"># census of all towers</span>
+llm <span class="sg">"write a Hogwarts-themed readme"</span>  <span class="sd"># conjure text</span>
+open-ha                              <span class="sd"># open the common room</span></pre>
+  </div>
+</section>
+
+<div class="torch-divider">📚 · The Library · 📚</div>
+
+<!-- ═════════════════════════════
+     TOMES & RESOURCES
+     ═════════════════════════════ -->
+<section id="tomes">
+  <div class="chapter-head">
+    <div class="chapter-mark cm-n">📚</div>
+    <div class="chapter-text">
+      <div class="chapter-roman">Chapter VIII · Madam Pince's Collection</div>
+      <h2>Required Reading</h2>
+      <p>Every tome, grimoire, and scroll referenced in the curriculum above.</p>
+    </div>
+  </div>
+
+  <p style="font-family:var(--font-sc);font-size:11px;color:rgba(212,160,23,0.4);letter-spacing:0.15em;margin-bottom:14px;text-transform:uppercase;">Network &amp; Infrastructure</p>
+  <div class="tome-grid">
+    <a href="https://www.ui.com/download/unifi" target="_blank" class="tome-link"><span class="tome-icon">📡</span><div><span class="tome-title">UniFi Network</span><span class="tome-sub">Download + firmware</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://proxmox.com/en/downloads" target="_blank" class="tome-link"><span class="tome-icon">💿</span><div><span class="tome-title">Proxmox VE 9</span><span class="tome-sub">ISO installer</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://tailscale.com/kb/1085/auth-keys" target="_blank" class="tome-link"><span class="tome-icon">🔒</span><div><span class="tome-title">Tailscale Auth Keys</span><span class="tome-sub">Automated setup</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://pi-hole.net" target="_blank" class="tome-link"><span class="tome-icon">🕳</span><div><span class="tome-title">Pi-hole</span><span class="tome-sub">Network DNS blocking</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://registry.terraform.io/providers/bpg/proxmox" target="_blank" class="tome-link"><span class="tome-icon">🏗</span><div><span class="tome-title">bpg/proxmox Provider</span><span class="tome-sub">Terraform Proxmox</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://cloud-images.ubuntu.com/noble/current/" target="_blank" class="tome-link"><span class="tome-icon">🐧</span><div><span class="tome-title">Ubuntu 24.04 Cloud</span><span class="tome-sub">Noble cloud-init image</span></div><span class="tome-arr">↗</span></a>
+  </div>
+
+  <p style="font-family:var(--font-sc);font-size:11px;color:rgba(212,160,23,0.4);letter-spacing:0.15em;margin:24px 0 14px;text-transform:uppercase;">Smart Home Grimoires</p>
+  <div class="tome-grid">
+    <a href="https://www.home-assistant.io" target="_blank" class="tome-link"><span class="tome-icon">🏠</span><div><span class="tome-title">Home Assistant</span><span class="tome-sub">Official docs</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://www.zigbee2mqtt.io" target="_blank" class="tome-link"><span class="tome-icon">📡</span><div><span class="tome-title">Zigbee2MQTT</span><span class="tome-sub">No vendor bridges</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://frigate.video" target="_blank" class="tome-link"><span class="tome-icon">🎥</span><div><span class="tome-title">Frigate NVR</span><span class="tome-sub">Local AI camera detection</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://github.com/mrlt8/docker-wyze-bridge" target="_blank" class="tome-link"><span class="tome-icon">📹</span><div><span class="tome-title">docker-wyze-bridge</span><span class="tome-sub">Wyze → RTSP</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://hacs.xyz" target="_blank" class="tome-link"><span class="tome-icon">🔧</span><div><span class="tome-title">HACS</span><span class="tome-sub">Community integrations</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://www.home-assistant.io/integrations/homekit/" target="_blank" class="tome-link"><span class="tome-icon">🍎</span><div><span class="tome-title">HomeKit Bridge</span><span class="tome-sub">HA → Siri / HomePod</span></div><span class="tome-arr">↗</span></a>
+  </div>
+
+  <p style="font-family:var(--font-sc);font-size:11px;color:rgba(212,160,23,0.4);letter-spacing:0.15em;margin:24px 0 14px;text-transform:uppercase;">AI Familiars</p>
+  <div class="tome-grid">
+    <a href="https://ollama.com" target="_blank" class="tome-link"><span class="tome-icon">🦙</span><div><span class="tome-title">Ollama</span><span class="tome-sub">Local LLM runtime</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://ollama.com/library" target="_blank" class="tome-link"><span class="tome-icon">📚</span><div><span class="tome-title">Ollama Model Library</span><span class="tome-sub">All familiars</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://github.com/open-webui/open-webui" target="_blank" class="tome-link"><span class="tome-icon">🌐</span><div><span class="tome-title">Open WebUI</span><span class="tome-sub">The reading room</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://continue.dev" target="_blank" class="tome-link"><span class="tome-icon">💻</span><div><span class="tome-title">Continue.dev</span><span class="tome-sub">AI in VS Code</span></div><span class="tome-arr">↗</span></a>
+  </div>
+
+  <p style="font-family:var(--font-sc);font-size:11px;color:rgba(212,160,23,0.4);letter-spacing:0.15em;margin:24px 0 14px;text-transform:uppercase;">Terminal Scrolls</p>
+  <div class="tome-grid">
+    <a href="https://ohmyz.sh" target="_blank" class="tome-link"><span class="tome-icon">🐚</span><div><span class="tome-title">Oh My Zsh</span><span class="tome-sub">Shell framework</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://starship.rs" target="_blank" class="tome-link"><span class="tome-icon">🚀</span><div><span class="tome-title">Starship</span><span class="tome-sub">Cross-platform prompt</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://iterm2colorschemes.com" target="_blank" class="tome-link"><span class="tome-icon">🎨</span><div><span class="tome-title">iTerm2 Colour Schemes</span><span class="tome-sub">250+ themes</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://github.com/catppuccin/catppuccin" target="_blank" class="tome-link"><span class="tome-icon">🌌</span><div><span class="tome-title">Catppuccin</span><span class="tome-sub">Consistent dark theme</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://grafana.com/grafana/dashboards/1860" target="_blank" class="tome-link"><span class="tome-icon">📊</span><div><span class="tome-title">Grafana Dashboard 1860</span><span class="tome-sub">Node Exporter Full</span></div><span class="tome-arr">↗</span></a>
+    <a href="https://grafana.com/grafana/dashboards/12486" target="_blank" class="tome-link"><span class="tome-icon">📈</span><div><span class="tome-title">Grafana Dashboard 12486</span><span class="tome-sub">Linux System Stats</span></div><span class="tome-arr">↗</span></a>
+  </div>
+</section>
+
+<div style="height:60px"></div>
+</div><!-- /wrap -->
+
+<div class="footer">
+  <span class="footer-seal">⚡</span>
+  <div class="footer-title">Hogwarts School of Homelab Sorcery</div>
+  <div class="footer-sub">Est. 2026 · Gryffindor IoT · Slytherin Network · Ravenclaw AI · Hufflepuff Game Dev</div>
+  <div class="footer-motto">"Mischief Managed"</div>
 </div>
-
-<div class="type-menu" id="typeMenu"></div>
 
 <script>
-var PX=24,ICON_R=7.5;
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  document.getElementById('prog').style.width = (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+});
 
-var CATEGORIES={
-  round_table:{label:'Round dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
-    {name:'36" round (2-seat)',wFt:3,hFt:3},{name:'42" round (4-seat)',wFt:3.5,hFt:3.5},
-    {name:'48" round (4-6)',wFt:4,hFt:4},{name:'60" round (6-8)',wFt:5,hFt:5}]},
-  rect_table:{label:'Rectangular dining tables',fill:'#B5D4F4',stroke:'#185FA5',textFill:'#0C447C',types:[
-    {name:'4-seat (3\' × 4\')',wFt:3,hFt:4},{name:'6-seat (3.5\' × 5\')',wFt:3.5,hFt:5},
-    {name:'8-seat (4\' × 6.5\')',wFt:4,hFt:6.5},{name:'10-seat (4\' × 8\')',wFt:4,hFt:8}]},
-  bistro_table:{label:'Bistro / pub tables',fill:'#D4B896',stroke:'#7A5C2E',textFill:'#4A3518',types:[
-    {name:'24" round bistro',wFt:2,hFt:2},{name:'30" round pub',wFt:2.5,hFt:2.5},
-    {name:'36" round high-top',wFt:3,hFt:3},{name:'24" square bistro',wFt:2,hFt:2}]},
-  bistro_stool:{label:'Bar stools / high chairs',fill:'#C9B99A',stroke:'#7A5C2E',textFill:'#4A3518',types:[
-    {name:'Round stool',wFt:1.25,hFt:1.25},{name:'Square stool',wFt:1.25,hFt:1.25},
-    {name:'Stool w/ back',wFt:1.5,hFt:1.5},{name:'Wide bar chair',wFt:1.75,hFt:1.75}]},
-  sofa:{label:'Sofas',fill:'#FAC775',stroke:'#854F0B',textFill:'#633806',types:[
-    {name:'Loveseat',wFt:5,hFt:2.5},{name:'3-seat sofa',wFt:7,hFt:3},
-    {name:'Bench',wFt:5,hFt:1.5},{name:'Daybed',wFt:6.5,hFt:3}]},
-  chair:{label:'Chairs',fill:'#C0DD97',stroke:'#3B6D11',textFill:'#27500A',types:[
-    {name:'Dining chair',wFt:1.5,hFt:1.5},{name:'Adirondack',wFt:2.5,hFt:3},
-    {name:'Folding chair',wFt:1.5,hFt:1.5},{name:'Rocking chair',wFt:2,hFt:3}]},
-  lounge:{label:'Lounge chairs',fill:'#F5C4B3',stroke:'#993C1D',textFill:'#712B13',types:[
-    {name:'Club chair',wFt:2.5,hFt:2.5},{name:'Chaise lounge',wFt:2.5,hFt:6},
-    {name:'Recliner',wFt:3,hFt:5},{name:'Papasan',wFt:3.5,hFt:3.5}]},
-  grill:{label:'Grills',fill:'#F7C1C1',stroke:'#A32D2D',textFill:'#791F1F',types:[
-    {name:'Portable',wFt:2,hFt:1.5},{name:'Standard grill',wFt:3,hFt:2},
-    {name:'Large grill',wFt:4,hFt:2},{name:'Grill island',wFt:5,hFt:2.5}]},
-  planter:{label:'Planters',fill:'#9FE1CB',stroke:'#0F6E56',textFill:'#085041',types:[
-    {name:'Small pot',wFt:1,hFt:1},{name:'Medium planter',wFt:2,hFt:2},
-    {name:'Long trough',wFt:4,hFt:1},{name:'Large square',wFt:3,hFt:3}]},
-  side_table:{label:'Side tables',fill:'#CECBF6',stroke:'#534AB7',textFill:'#3C3489',types:[
-    {name:'Small round',wFt:1.5,hFt:1.5},{name:'Medium square',wFt:2,hFt:2},
-    {name:'Console table',wFt:4,hFt:1.5},{name:'Coffee table',wFt:4,hFt:2}]},
-  umbrella:{label:'Umbrellas (shade area)',fill:'#ED93B1',stroke:'#993556',textFill:'#72243E',types:[
-    {name:'6 ft umbrella',wFt:6,hFt:6},{name:'8 ft umbrella',wFt:8,hFt:8},
-    {name:'10 ft umbrella',wFt:10,hFt:10},{name:'10 ft rect.',wFt:10,hFt:6.5}]}
-};
-
-var svg=document.getElementById('plan'),fg=document.getElementById('furniture');
-var typeMenu=document.getElementById('typeMenu');
-var dragEl=null,dragOff={x:0,y:0},activeMenuEl=null;
-
-function mk(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag)}
-
-function addItem(cat,subIdx,x,y,angle){
-  var c=CATEGORIES[cat],idx=subIdx||0,t=c.types[idx];
-  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
-  var px=x!==undefined?x:300,py=y!==undefined?y:220,rot=angle||0;
-  var g=mk('g');g.setAttribute('class','draggable');
-  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
-  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;g.dataset.rot=rot;
-  buildPiece(g,cat,idx);fg.appendChild(g);
-  g.addEventListener('pointerdown',startDrag);
-}
-
-function buildPiece(g,cat,idx){
-  var c=CATEGORIES[cat],t=c.types[idx];
-  var w=Math.round(t.wFt*PX),h=Math.round(t.hFt*PX);
-  var rot=parseFloat(g.dataset.rot)||0;
-  while(g.firstChild)g.removeChild(g.firstChild);
-  g.dataset.cat=cat;g.dataset.subIdx=idx;g.dataset.w=w;g.dataset.h=h;
-  var tr=g.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
-  var px=m?parseFloat(m[1]):300,py=m?parseFloat(m[2]):220;
-  g.setAttribute('transform','translate('+px+','+py+') rotate('+rot+','+(w/2)+','+(h/2)+')');
-
-  var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
-  if(isRound){
-    var circ=mk('ellipse');circ.setAttribute('cx',w/2);circ.setAttribute('cy',h/2);
-    circ.setAttribute('rx',w/2);circ.setAttribute('ry',h/2);
-    circ.setAttribute('fill',c.fill);circ.setAttribute('stroke',c.stroke);
-    circ.setAttribute('stroke-width','1');g.appendChild(circ);
-  } else {
-    var r=mk('rect');r.setAttribute('width',w);r.setAttribute('height',h);r.setAttribute('rx','3');
-    r.setAttribute('fill',c.fill);r.setAttribute('stroke',c.stroke);
-    r.setAttribute('stroke-width','1');g.appendChild(r);
-  }
-
-  var small=(w<48||h<48),fs=small?7:9;
-  var txt=mk('text');txt.setAttribute('x',w/2);txt.setAttribute('y',h/2-(small?3:5));
-  txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','central');
-  txt.setAttribute('font-size',fs);txt.setAttribute('font-family','-apple-system,Segoe UI,Helvetica,Arial,sans-serif');
-  txt.setAttribute('fill',c.textFill);txt.setAttribute('font-weight','500');
-  txt.setAttribute('pointer-events','none');txt.textContent=t.name;g.appendChild(txt);
-
-  var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
-  var sft=mk('text');sft.setAttribute('x',w/2);sft.setAttribute('y',h/2+(small?6:7));
-  sft.setAttribute('text-anchor','middle');sft.setAttribute('dominant-baseline','central');
-  sft.setAttribute('font-size','7');sft.setAttribute('font-family','SF Mono,Courier New,monospace');
-  sft.setAttribute('fill',c.textFill);sft.setAttribute('opacity','0.6');
-  sft.setAttribute('pointer-events','none');sft.textContent=sqft+' sq ft';g.appendChild(sft);
-
-  if(!small){
-    var dims=mk('text');dims.setAttribute('x',w/2);dims.setAttribute('y',h/2+16);
-    dims.setAttribute('text-anchor','middle');dims.setAttribute('dominant-baseline','central');
-    dims.setAttribute('font-size','7');dims.setAttribute('font-family','SF Mono,Courier New,monospace');
-    dims.setAttribute('fill',c.textFill);dims.setAttribute('opacity','0.45');
-    dims.setAttribute('pointer-events','none');dims.textContent=t.wFt+"' × "+t.hFt+"'";g.appendChild(dims);
-  }
-
-  // MENU (upper-left)
-  var mg=mk('g');mg.setAttribute('class','icon-btn');
-  mg.setAttribute('transform','translate('+(ICON_R+2)+','+(ICON_R+2)+')');
-  var mbg=mk('circle');mbg.setAttribute('r',ICON_R);mbg.setAttribute('fill','#444');mbg.setAttribute('opacity','0.8');mg.appendChild(mbg);
-  [-2.2,0,2.2].forEach(function(dy){var ml=mk('line');ml.setAttribute('x1','-3');ml.setAttribute('y1',dy);ml.setAttribute('x2','3');ml.setAttribute('y2',dy);ml.setAttribute('stroke','#fff');ml.setAttribute('stroke-width','1.2');ml.setAttribute('stroke-linecap','round');mg.appendChild(ml);});
-  mg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();openTypeMenu(g,cat,idx,e);});g.appendChild(mg);
-
-  // DELETE (upper-right)
-  var xg=mk('g');xg.setAttribute('class','icon-btn');
-  xg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(ICON_R+2)+')');
-  var xbg=mk('circle');xbg.setAttribute('r',ICON_R);xbg.setAttribute('fill','#a32d2d');xbg.setAttribute('opacity','0.8');xg.appendChild(xbg);
-  [[-3,-3,3,3],[3,-3,-3,3]].forEach(function(coords){var xl=mk('line');xl.setAttribute('x1',coords[0]);xl.setAttribute('y1',coords[1]);xl.setAttribute('x2',coords[2]);xl.setAttribute('y2',coords[3]);xl.setAttribute('stroke','#fff');xl.setAttribute('stroke-width','1.5');xl.setAttribute('stroke-linecap','round');xg.appendChild(xl);});
-  xg.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();g.remove();closeMenu();});g.appendChild(xg);
-
-  // ROTATE 45° (bottom-right)
-  var rg=mk('g');rg.setAttribute('class','icon-btn');
-  rg.setAttribute('transform','translate('+(w-ICON_R-2)+','+(h-ICON_R-2)+')');
-  var rbg=mk('circle');rbg.setAttribute('r',ICON_R);rbg.setAttribute('fill','#185fa5');rbg.setAttribute('opacity','0.8');rg.appendChild(rbg);
-  var arc=mk('path');arc.setAttribute('d','M3,-1 A4,4 0 1,0 1,3');arc.setAttribute('fill','none');arc.setAttribute('stroke','#fff');arc.setAttribute('stroke-width','1.4');arc.setAttribute('stroke-linecap','round');rg.appendChild(arc);
-  var ah=mk('path');ah.setAttribute('d','M3,-3.5 L3,0.5 L5.5,-0.5 Z');ah.setAttribute('fill','#fff');rg.appendChild(ah);
-  rg.addEventListener('click',function(e){
-    e.stopPropagation();e.preventDefault();closeMenu();
-    var curRot=(parseFloat(g.dataset.rot)||0)+45;if(curRot>=360)curRot-=360;
-    g.dataset.rot=curRot;buildPiece(g,g.dataset.cat,parseInt(g.dataset.subIdx));
-  });g.appendChild(rg);
-}
-
-function openTypeMenu(gEl,cat,currentIdx,evt){
-  closeMenu();activeMenuEl=gEl;var c=CATEGORIES[cat],mx=evt.clientX+12,my=evt.clientY-20;
-  var html='<div class="type-menu-title">'+c.label+'</div>';
-  var maxFt=0;c.types.forEach(function(t){maxFt=Math.max(maxFt,t.wFt,t.hFt)});var ps=40/maxFt;
-  c.types.forEach(function(t,i){
-    var pw=Math.max(8,Math.round(t.wFt*ps)),ph=Math.max(8,Math.round(t.hFt*ps));
-    var sqft=(t.wFt*t.hFt).toFixed(1).replace(/\.0$/,'');
-    var active=(i===currentIdx)?' active':'';
-    var isRound=(cat==='round_table'||(cat==='bistro_table'&&t.name.indexOf('round')!==-1)||(cat==='bistro_stool'&&t.name.indexOf('Round')!==-1));
-    var br=isRound?';border-radius:50%':'';
-    html+='<div class="type-option'+active+'" onclick="selectType(\''+cat+'\','+i+')">';
-    html+='<div class="type-option-preview" style="width:'+pw+'px;height:'+ph+'px;background:'+c.fill+';border:1.5px solid '+c.stroke+br+'"></div>';
-    html+='<div class="type-option-info"><span class="type-option-name">'+t.name+'</span>';
-    html+='<span class="type-option-dims">'+t.wFt+"' × "+t.hFt+"' · "+sqft+' sq ft</span></div></div>';
+function cast(btn) {
+  const text = btn.closest('.spellbook').querySelector('pre').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Accio! ✦';
+    btn.classList.add('cast');
+    setTimeout(() => { btn.textContent = 'Cast ✦'; btn.classList.remove('cast'); }, 2000);
   });
-  typeMenu.innerHTML=html;
-  typeMenu.style.left=Math.min(mx,window.innerWidth-240)+'px';
-  typeMenu.style.top=Math.min(my,window.innerHeight-280)+'px';
-  typeMenu.classList.add('open');
 }
-function selectType(cat,idx){if(!activeMenuEl)return;buildPiece(activeMenuEl,cat,idx);closeMenu();}
-function closeMenu(){typeMenu.classList.remove('open');activeMenuEl=null;}
-document.addEventListener('click',function(e){if(!typeMenu.contains(e.target))closeMenu()});
-
-function clearAll(){fg.innerHTML='';closeMenu();placeGrill();}
-function placeGrill(){addItem('grill',1,145,305,-45);}
-
-function getPoint(e){var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
-function startDrag(e){
-  if(e.target.closest('.icon-btn'))return;
-  e.preventDefault();closeMenu();dragEl=e.currentTarget;
-  var p=getPoint(e),tr=dragEl.getAttribute('transform'),m=tr.match(/translate\(([\d.-]+),([\d.-]+)\)/);
-  dragOff.x=p.x-parseFloat(m[1]);dragOff.y=p.y-parseFloat(m[2]);
-  document.addEventListener('pointermove',onDrag);document.addEventListener('pointerup',endDrag);
-}
-function onDrag(e){
-  if(!dragEl)return;var p=getPoint(e);
-  var rot=dragEl.dataset.rot||0,w=dragEl.dataset.w||0,h=dragEl.dataset.h||0;
-  dragEl.setAttribute('transform','translate('+Math.round(p.x-dragOff.x)+','+Math.round(p.y-dragOff.y)+') rotate('+rot+','+(w/2)+','+(h/2)+')');
-}
-function endDrag(){dragEl=null;document.removeEventListener('pointermove',onDrag);document.removeEventListener('pointerup',endDrag);}
-
-placeGrill();
 </script>
 </body>
 </html>
